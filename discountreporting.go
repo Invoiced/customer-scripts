@@ -12,7 +12,7 @@ import (
 "time"
 )
 
-//This program will send all invoices in the excel sheet
+//This program generates a excel file that reports the total discounts between two dates inclusively
 
 func main() {
 	//declare and init command line flags

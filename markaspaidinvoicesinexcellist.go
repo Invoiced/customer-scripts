@@ -9,8 +9,7 @@ import (
 	"strings"
 )
 
-//This program will delete all the customers in the account
-//Becareful using this in production
+//This program will mark the customers in the excel sheet as paid.
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)

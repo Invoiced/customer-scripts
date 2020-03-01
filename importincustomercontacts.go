@@ -58,7 +58,7 @@ func main() {
 	}
 
 
-	fmt.Println("Please confirm, this program is about mark the invoices as bad debt, specified by the customers in the excel file, please type in YES to continue: ")
+	fmt.Println("Please confirm, this program is about import contacts, specified by the customers in the excel file, please type in YES to continue: ")
 	confirm, _ := reader.ReadString('\n')
 	confirm = strings.TrimSpace(confirm)
 

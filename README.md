@@ -7,7 +7,7 @@ Download Go
 https://golang.org/dl/
 
 Install some libraries
-`go get -u github.com/invoiced/invoiced-go`\n
+`go get -u github.com/invoiced/invoiced-go`/n
 `go get -u github.com/360EntSecGroup-Skylar/excelize`
 
 To run the go programs type in 

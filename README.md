@@ -5,10 +5,10 @@ Has a best practice each program should be self-contained in a single file and p
 
 Download Go
 https://golang.org/dl/
-
+<br/>
 Install some libraries
-`go get -u github.com/invoiced/invoiced-go`/n
+`go get -u github.com/invoiced/invoiced-go`<br/>
 `go get -u github.com/360EntSecGroup-Skylar/excelize`
-
+<br/>
 To run the go programs type in 
 `go run nameofprogram.go`

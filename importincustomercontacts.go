@@ -95,12 +95,24 @@ func main() {
 
 		emails := strings.Split(strings.TrimSpace(row[3]), ",")
 
+		billingContactStr := strings.ToLower(strings.TrimSpace(row[5]))
+		billingContact := false
+
+		if strings.Contains(billingContactStr,"y") {
+			billingContact = true
+		}
+
+
+
 		if len(emails) == 1 {
 			fmt.Println("Adding contact with email = ", emails[0])
+			fmt.Println("Billing contact -> ", billingContact)
 			contactToAdd := new(invdendpoint.Contact)
 			contactToAdd.Name = emails[0]
 			contactToAdd.Email = emails[0]
 			contactToAdd.Phone = strings.TrimSpace(row[4])
+			contactToAdd.Primary = billingContact
+
 
 			customer := customers[0]
 
@@ -115,11 +127,12 @@ func main() {
 		} else if len(emails) > 1 {
 			for _, email := range emails {
 				fmt.Println("Adding contact with email = ", emails[0])
+				fmt.Println("Billing contact -> ", billingContact)
 				contactToAdd := new(invdendpoint.Contact)
 				contactToAdd.Name = email
 				contactToAdd.Email = email
 				contactToAdd.Phone = strings.TrimSpace(row[4])
-
+				contactToAdd.Primary = billingContact
 				customer := customers[0]
 
 				_, err = customer.CreateContact(contactToAdd)

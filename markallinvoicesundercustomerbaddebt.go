@@ -1,13 +1,13 @@
 package main
 
 import (
-"bufio"
-"fmt"
-"github.com/360EntSecGroup-Skylar/excelize"
-"github.com/invoiced/invoiced-go"
-"github.com/Invoiced/invoiced-go/invdendpoint"
-"os"
-"strings"
+	"bufio"
+	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/Invoiced/invoiced-go/invdendpoint"
+	"github.com/invoiced/invoiced-go"
+	"os"
+	"strings"
 )
 
 //This program marks all the invoices bad debt under the customer.  It looks up the customer by the customer name provided in the excel sheet.
@@ -34,7 +34,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("Is this a Production connection? => ",prodEnv)
+	fmt.Println("Is this a Production connection? => ", prodEnv)
 
 	fmt.Println("Please specify your excel file: ")
 	fileLocation, _ := reader.ReadString('\n')
@@ -57,7 +57,6 @@ func main() {
 		panic("Error trying to get rows for the sheet" + err.Error())
 	}
 
-
 	fmt.Println("Please confirm, this program is about mark the invoices as bad debt, specified by the customers in the excel file, please type in YES to continue: ")
 	confirm, _ := reader.ReadString('\n')
 	confirm = strings.TrimSpace(confirm)
@@ -73,36 +72,36 @@ func main() {
 
 		customerName := strings.TrimSpace(row[columnIndex])
 
-		fmt.Println("Getting customer with name => ",customerName)
+		fmt.Println("Getting customer with name => ", customerName)
 
 		customerFilter := invdendpoint.NewFilter()
-		customerFilter.Set("name",customerName)
+		customerFilter.Set("name", customerName)
 
-		customers, err := conn.NewCustomer().ListAll(customerFilter,nil)
+		customers, err := conn.NewCustomer().ListAll(customerFilter, nil)
 
 		if err != nil {
-			fmt.Println("Error getting customer with name => ",customerName, ", error => ", err)
+			fmt.Println("Error getting customer with name => ", customerName, ", error => ", err)
 			continue
 		}
 
 		if customers == nil {
-			fmt.Println("Customer does not exist =>",customerName)
+			fmt.Println("Customer does not exist =>", customerName)
 			continue
 		}
 
 		if len(customers) == 0 {
-			fmt.Println("Customer does not exist =>",customerName)
+			fmt.Println("Customer does not exist =>", customerName)
 			continue
 		}
 
-		fmt.Println("Successfully got customer with name => ",customerName)
+		fmt.Println("Successfully got customer with name => ", customerName)
 
 		fmt.Println("Now getting the associated invoices")
 
 		filter := invdendpoint.NewFilter()
-		filter.Set("customer",customers[0].Id)
+		filter.Set("customer", customers[0].Id)
 
-		invoices, err := conn.NewInvoice().ListAll(filter,nil)
+		invoices, err := conn.NewInvoice().ListAll(filter, nil)
 
 		if err != nil {
 			fmt.Println("Error getting invoices ", err)
@@ -117,17 +116,14 @@ func main() {
 				err := invToUpdate.Save()
 
 				if err != nil {
-					fmt.Println("Error closing invoice => ", invoice.Number, ", error message => ",err)
+					fmt.Println("Error closing invoice => ", invoice.Number, ", error message => ", err)
 				}
 
 				fmt.Println("Successfully closed invoice ", invoice.Number)
 
 			}
 
-
 		}
 	}
-
-
 
 }

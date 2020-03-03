@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//This program will mark the customers in the excel sheet as paid.
+//This program will mark the customers in the excel sheet as paid, by adding payments to close out the open invoices.
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
@@ -33,7 +33,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("Is this a Production connection? => ",prodEnv)
+	fmt.Println("Is this a Production connection? => ", prodEnv)
 
 	fmt.Println("Please specify your excel file: ")
 	fileLocation, _ := reader.ReadString('\n')
@@ -56,7 +56,6 @@ func main() {
 		panic("Error trying to get rows for the sheet" + err.Error())
 	}
 
-
 	fmt.Println("Please confirm, this program is about add payments to all of those invoices specified in the excel file, please type in YES to continue: ")
 	confirm, _ := reader.ReadString('\n')
 	confirm = strings.TrimSpace(confirm)
@@ -72,26 +71,26 @@ func main() {
 
 		invoiceNumber := strings.TrimSpace(row[columnIndex])
 
-		fmt.Println("Getting invoice with number => ",invoiceNumber)
+		fmt.Println("Getting invoice with number => ", invoiceNumber)
 
 		inv, err := conn.NewInvoice().ListInvoiceByNumber(invoiceNumber)
 
 		if err != nil {
-			fmt.Println("Error getting invoice with number => ",invoiceNumber, ", error => ", err)
+			fmt.Println("Error getting invoice with number => ", invoiceNumber, ", error => ", err)
 			continue
 		}
 
 		if inv == nil {
-			fmt.Println("Invoice does not exist =>",invoiceNumber)
+			fmt.Println("Invoice does not exist =>", invoiceNumber)
 			continue
 		}
 
-		fmt.Println("Successfully got invoice with number => ",invoiceNumber)
+		fmt.Println("Successfully got invoice with number => ", invoiceNumber)
 
 		balance := inv.Balance
 
 		if inv.Closed {
-			fmt.Println("Invoice ",invoiceNumber, " is closed, so we are skipping the creation of a payment")
+			fmt.Println("Invoice ", invoiceNumber, " is closed, so we are skipping the creation of a payment")
 			continue
 		}
 
@@ -109,14 +108,12 @@ func main() {
 		createdTransaction, err := conn.NewTransaction().Create(transactionToCreate)
 
 		if err != nil {
-			fmt.Println("Error creating payment with invoice with number => ",invoiceNumber)
+			fmt.Println("Error creating payment with invoice with number => ", invoiceNumber)
 			continue
 		}
 
 		fmt.Println("Successfully created payment with ID => ", createdTransaction.Id)
 
 	}
-
-
 
 }

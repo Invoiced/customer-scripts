@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-//This program will mark all customers paid in excel sheet
+//This program will delete all the customers in the account.
 //Be careful using this in production
 
 func main() {

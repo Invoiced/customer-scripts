@@ -1,15 +1,15 @@
 package main
 
 import (
-"bufio"
-"fmt"
-"github.com/360EntSecGroup-Skylar/excelize"
-"github.com/invoiced/invoiced-go"
-"github.com/Invoiced/invoiced-go/invdendpoint"
-"os"
-"strings"
-"flag"
-"time"
+	"bufio"
+	"flag"
+	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/Invoiced/invoiced-go/invdendpoint"
+	"github.com/invoiced/invoiced-go"
+	"os"
+	"strings"
+	"time"
 )
 
 //This program generates a excel file that reports the total discounts between two dates inclusively
@@ -17,11 +17,11 @@ import (
 func main() {
 	//declare and init command line flags
 	prodEnv := true
-	key := flag.String("key","","api key in Settings > Developer")
-	environment := flag.String("env","","your environment production or sandbox")
-	startdate := flag.String("startdate","","Your start date for the discount period in MMDDYYYY format")
-	enddate := flag.String("enddate","","Your end date for the discount period in MMDDYYYY format")
-	fileLocation := flag.String("file","","specify your excel file")
+	key := flag.String("key", "", "api key in Settings > Developer")
+	environment := flag.String("env", "", "your environment production or sandbox")
+	startdate := flag.String("startdate", "", "Your start date for the discount period in MMDDYYYY format")
+	enddate := flag.String("enddate", "", "Your end date for the discount period in MMDDYYYY format")
+	fileLocation := flag.String("file", "", "specify your excel file")
 	flag.Parse()
 
 	reader := bufio.NewReader(os.Stdin)
@@ -33,7 +33,6 @@ func main() {
 	}
 
 	*environment = strings.ToUpper(strings.TrimSpace(*environment))
-
 
 	if *environment == "P" || strings.Contains(*environment, "PRODUCTION") {
 		prodEnv = false
@@ -65,7 +64,6 @@ func main() {
 		*fileLocation = strings.TrimSpace(*fileLocation)
 	}
 
-
 	beginTime := time.Time{}
 	endTime := time.Time{}
 
@@ -78,7 +76,7 @@ func main() {
 			loc := time.Now().Location()
 			var err error
 
-			beginTime, err = time.ParseInLocation("01022006",*startdate,loc)
+			beginTime, err = time.ParseInLocation("01022006", *startdate, loc)
 
 			if err == nil {
 				break
@@ -86,7 +84,6 @@ func main() {
 
 		}
 	}
-
 
 	if *enddate == "" {
 		for {
@@ -115,7 +112,7 @@ func main() {
 	filter.Set("voided", 0)
 
 	fmt.Println("Getting invoices ...")
-	invoices, err := conn.NewInvoice().ListAllInvoicesStartEndDate(filter,nil,beginTime.Unix(),endTime.Unix())
+	invoices, err := conn.NewInvoice().ListAllInvoicesStartEndDate(filter, nil, beginTime.Unix(), endTime.Unix())
 
 	if err != nil {
 		panic(err)
@@ -139,8 +136,8 @@ func main() {
 
 	}
 
-   fmt.Println("Total discount is ", discountTotal)
-	fmt.Println("Saving data to",*fileLocation)
+	fmt.Println("Total discount is ", discountTotal)
+	fmt.Println("Saving data to", *fileLocation)
 
 	f := excelize.NewFile()
 	// Create a new sheet.
@@ -149,30 +146,28 @@ func main() {
 	f.SetActiveSheet(index)
 	// Save xlsx file by the given path.
 
-	err = f.SetCellValue("Sheet1","A1","Discount Total")
+	err = f.SetCellValue("Sheet1", "A1", "Discount Total")
 	if err != nil {
 		panic(err)
 	}
-	err = f.SetCellValue("Sheet1","B1","Start Date")
+	err = f.SetCellValue("Sheet1", "B1", "Start Date")
 	if err != nil {
 		panic(err)
 	}
-	err = f.SetCellValue("Sheet1","C1","End Date")
+	err = f.SetCellValue("Sheet1", "C1", "End Date")
 	if err != nil {
 		panic(err)
 	}
 
-
-
-	err = f.SetCellValue("Sheet1","A2",discountTotal)
+	err = f.SetCellValue("Sheet1", "A2", discountTotal)
 	if err != nil {
 		panic(err)
 	}
-	err = f.SetCellValue("Sheet1","B2",*startdate)
+	err = f.SetCellValue("Sheet1", "B2", *startdate)
 	if err != nil {
 		panic(err)
 	}
-	err = f.SetCellValue("Sheet1","C2",*enddate)
+	err = f.SetCellValue("Sheet1", "C2", *enddate)
 	if err != nil {
 		panic(err)
 	}
@@ -181,4 +176,3 @@ func main() {
 		panic(err)
 	}
 }
-

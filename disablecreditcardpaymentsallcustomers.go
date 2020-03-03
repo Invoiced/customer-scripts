@@ -2,20 +2,20 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"github.com/invoiced/invoiced-go"
 	"os"
 	"strings"
-	"flag"
 )
 
-//This program will send all invoices in the excel sheet
+//This program will disable all of the credit card payments.
 
 func main() {
 	//declare and init command line flags
 	prodEnv := true
-	key := flag.String("key","","api key in Settings > Developer")
-	environment := flag.String("env","","your environment production or sandbox")
+	key := flag.String("key", "", "api key in Settings > Developer")
+	environment := flag.String("env", "", "your environment production or sandbox")
 
 	flag.Parse()
 
@@ -28,7 +28,6 @@ func main() {
 	}
 
 	*environment = strings.ToUpper(strings.TrimSpace(*environment))
-
 
 	if *environment == "P" || strings.Contains(*environment, "PRODUCTION") {
 		prodEnv = false
@@ -54,8 +53,6 @@ func main() {
 
 	}
 
-
-
 	fmt.Println("Please confirm, this program is about disable credit card payments for all customers, please type in YES to continue: ")
 	confirm, _ := reader.ReadString('\n')
 	confirm = strings.TrimSpace(confirm)
@@ -69,25 +66,22 @@ func main() {
 
 	customerConn := conn.NewCustomer()
 
-	customers, err := customerConn.ListAll(nil,nil)
+	customers, err := customerConn.ListAll(nil, nil)
 
 	if err != nil {
-		panic("Error fetching customers => "+ err.Error())
+		panic("Error fetching customers => " + err.Error())
 	}
 
-	for _,customer := range customers {
+	for _, customer := range customers {
 		tmpCustToUpdate := conn.NewCustomer()
 		tmpCustToUpdate.Id = customer.Id
-		tmpCustToUpdate.DisabledPaymentMethods = append([]string{},"credit_card")
-		fmt.Println("Disabling credit card for customer # ",customer.Number)
+		tmpCustToUpdate.DisabledPaymentMethods = append([]string{}, "credit_card")
+		fmt.Println("Disabling credit card for customer # ", customer.Number)
 		err := tmpCustToUpdate.Save()
 		if err != nil {
-			fmt.Println("Error saving customer => ",customer.Number)
+			fmt.Println("Error saving customer => ", customer.Number)
 		}
-		fmt.Println("Successfully disabled credit card for customer # ",customer.Number)
+		fmt.Println("Successfully disabled credit card for customer # ", customer.Number)
 	}
 
-
-
 }
-

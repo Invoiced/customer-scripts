@@ -63,7 +63,6 @@ func main() {
 		*fileLocation = strings.TrimSpace(*fileLocation)
 	}
 
-
 	fmt.Println(prodEnv)
 
 	conn := invdapi.NewConnection(*key, prodEnv)
@@ -74,7 +73,7 @@ func main() {
 
 	fmt.Println("Getting Subscriptions ...")
 
-	subscriptions, err := conn.NewSubscription().ListAll(filter,nil)
+	subscriptions, err := conn.NewSubscription().ListAll(filter, nil)
 
 	if err != nil {
 		panic(err)
@@ -128,10 +127,9 @@ func main() {
 		panic(err)
 	}
 
-
 	for i, subscription := range subscriptions {
 
-		err = f.SetCellValue("Sheet1", "A"  + strconv.Itoa(i + 2), subscription.Id)
+		err = f.SetCellValue("Sheet1", "A"+strconv.Itoa(i+2), subscription.Id)
 
 		if err != nil {
 			panic(err)
@@ -144,49 +142,47 @@ func main() {
 		}
 
 		if customer == nil {
-			panic("Customer with id = " + strconv.FormatInt(subscription.Customer,10) + ", not found")
+			panic("Customer with id = " + strconv.FormatInt(subscription.Customer, 10) + ", not found")
 		}
 
-		err = f.SetCellValue("Sheet1", "B" + strconv.Itoa(i + 2), customer.Name)
+		err = f.SetCellValue("Sheet1", "B"+strconv.Itoa(i+2), customer.Name)
 
 		if err != nil {
 			panic(err)
 		}
 
-		t := time.Unix(subscription.CreatedAt,0)
+		t := time.Unix(subscription.CreatedAt, 0)
 
-
-		err = f.SetCellValue("Sheet1", "C" + strconv.Itoa(i + 2), t.String())
-
-		if err != nil {
-			panic(err)
-		}
-
-		err = f.SetCellValue("Sheet1", "D" + strconv.Itoa(i + 2), subscription.Paused)
+		err = f.SetCellValue("Sheet1", "C"+strconv.Itoa(i+2), t.String())
 
 		if err != nil {
 			panic(err)
 		}
 
-		err = f.SetCellValue("Sheet1", "E" + strconv.Itoa(i + 2), subscription.Plan)
+		err = f.SetCellValue("Sheet1", "D"+strconv.Itoa(i+2), subscription.Paused)
 
 		if err != nil {
 			panic(err)
 		}
 
-		err = f.SetCellValue("Sheet1", "F" + strconv.Itoa(i + 2), subscription.RecurringTotal)
+		err = f.SetCellValue("Sheet1", "E"+strconv.Itoa(i+2), subscription.Plan)
 
 		if err != nil {
 			panic(err)
 		}
 
-		err = f.SetCellValue("Sheet1", "G" + strconv.Itoa(i + 2), subscription.Status)
+		err = f.SetCellValue("Sheet1", "F"+strconv.Itoa(i+2), subscription.RecurringTotal)
+
+		if err != nil {
+			panic(err)
+		}
+
+		err = f.SetCellValue("Sheet1", "G"+strconv.Itoa(i+2), subscription.Status)
 
 		if err != nil {
 			panic(err)
 		}
 	}
-
 
 	if err := f.SaveAs(*fileLocation); err != nil {
 		panic(err)

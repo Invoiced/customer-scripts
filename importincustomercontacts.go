@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-//This program will mark the customers in the excel sheet as paid.
+//This program will import in customer contacts
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
@@ -34,7 +34,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("Is this a Production connection? => ",prodEnv)
+	fmt.Println("Is this a Production connection? => ", prodEnv)
 
 	fmt.Println("Please specify your excel file: ")
 	fileLocation, _ := reader.ReadString('\n')
@@ -57,7 +57,6 @@ func main() {
 		panic("Error trying to get rows for the sheet" + err.Error())
 	}
 
-
 	fmt.Println("Please confirm, this program is about import contacts, specified by the customers in the excel file, please type in YES to continue: ")
 	confirm, _ := reader.ReadString('\n')
 	confirm = strings.TrimSpace(confirm)
@@ -77,27 +76,27 @@ func main() {
 		}
 
 		customerNumber := strings.TrimSpace(row[columnIndex])
-		fmt.Println("customerNumber=>",customerNumber)
+		fmt.Println("customerNumber=>", customerNumber)
 
 		filter := invdendpoint.NewFilter()
-		filter.Set("number",customerNumber)
+		filter.Set("number", customerNumber)
 
-		customers, err := conn.NewCustomer().ListAll(filter,nil)
+		customers, err := conn.NewCustomer().ListAll(filter, nil)
 
 		if err != nil {
-			fmt.Println("Error getting customer with number -> ",customerNumber, ", skipping.  Error => ",err)
+			fmt.Println("Error getting customer with number -> ", customerNumber, ", skipping.  Error => ", err)
 			continue
 		}
 
-		if customers == nil || len(customers) == 0{
-			fmt.Println("Could not retrieve customer with number -> ",customerNumber)
+		if customers == nil || len(customers) == 0 {
+			fmt.Println("Could not retrieve customer with number -> ", customerNumber)
 			continue
 		}
 
-		emails := strings.Split( strings.TrimSpace(row[3]),",")
+		emails := strings.Split(strings.TrimSpace(row[3]), ",")
 
 		if len(emails) == 1 {
-			fmt.Println("Adding contact with email = ",emails[0])
+			fmt.Println("Adding contact with email = ", emails[0])
 			contactToAdd := new(invdendpoint.Contact)
 			contactToAdd.Name = emails[0]
 			contactToAdd.Email = emails[0]
@@ -108,15 +107,14 @@ func main() {
 			_, err = customer.CreateContact(contactToAdd)
 
 			if err != nil {
-				fmt.Println("Could not add contact, for customer => ",customer.Number,", got error =>  ",err)
+				fmt.Println("Could not add contact, for customer => ", customer.Number, ", got error =>  ", err)
 				continue
 			}
-
 
 			fmt.Println("Successfully added contact ", contactToAdd.Name)
 		} else if len(emails) > 1 {
 			for _, email := range emails {
-				fmt.Println("Adding contact with email = ",emails[0])
+				fmt.Println("Adding contact with email = ", emails[0])
 				contactToAdd := new(invdendpoint.Contact)
 				contactToAdd.Name = email
 				contactToAdd.Email = email
@@ -127,24 +125,16 @@ func main() {
 				_, err = customer.CreateContact(contactToAdd)
 
 				if err != nil {
-					fmt.Println("Could not add contact, for customer => ",customer.Number,", got error =>  ",err)
+					fmt.Println("Could not add contact, for customer => ", customer.Number, ", got error =>  ", err)
 					continue
 				}
 
-
 				fmt.Println("Successfully added contact ", contactToAdd.Name)
-
 
 			}
 
-
 		}
 
-
-
-
 	}
-
-
 
 }

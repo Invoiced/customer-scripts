@@ -1,14 +1,13 @@
 package main
 
-
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/invoiced/invoiced-go"
 	"os"
 	"strings"
-	"flag"
 )
 
 //This program will send all invoices in the excel sheet
@@ -16,9 +15,9 @@ import (
 func main() {
 	//declare and init command line flags
 	prodEnv := true
-	key := flag.String("key","","api key in Settings > Developer")
-	environment := flag.String("env","","your environment production or sandbox")
-	fileLocation := flag.String("file","","specify your excel file")
+	key := flag.String("key", "", "api key in Settings > Developer")
+	environment := flag.String("env", "", "your environment production or sandbox")
+	fileLocation := flag.String("file", "", "specify your excel file")
 	flag.Parse()
 
 	reader := bufio.NewReader(os.Stdin)
@@ -30,7 +29,6 @@ func main() {
 	}
 
 	*environment = strings.ToUpper(strings.TrimSpace(*environment))
-
 
 	if *environment == "P" || strings.Contains(*environment, "PRODUCTION") {
 		prodEnv = false
@@ -62,7 +60,7 @@ func main() {
 		*fileLocation = strings.TrimSpace(*fileLocation)
 	}
 
-	fmt.Println("Opening Excel File => ",*fileLocation )
+	fmt.Println("Opening Excel File => ", *fileLocation)
 	f, err := excelize.OpenFile(*fileLocation)
 
 	if err != nil {
@@ -79,7 +77,6 @@ func main() {
 		panic("Error trying to get rows for the sheet" + err.Error())
 	}
 
-
 	fmt.Println("Please confirm, this program is about to send out the all of those invoices specified in the excel file, through email, please type in YES to continue: ")
 	confirm, _ := reader.ReadString('\n')
 	confirm = strings.TrimSpace(confirm)
@@ -95,17 +92,17 @@ func main() {
 
 		invoiceNumber := strings.TrimSpace(row[columnIndex])
 
-		fmt.Println("Getting invoice with number => ",invoiceNumber)
+		fmt.Println("Getting invoice with number => ", invoiceNumber)
 
 		inv, err := conn.NewInvoice().ListInvoiceByNumber(invoiceNumber)
 
 		if err != nil {
-			fmt.Println("Error getting invoice with number => ",invoiceNumber, ", error => ", err)
+			fmt.Println("Error getting invoice with number => ", invoiceNumber, ", error => ", err)
 			continue
 		}
 
 		if inv == nil {
-			fmt.Println("Invoice does not exist =>",invoiceNumber)
+			fmt.Println("Invoice does not exist =>", invoiceNumber)
 			continue
 		}
 
@@ -113,7 +110,6 @@ func main() {
 			fmt.Println("Invoice is already sent, paid, voided, viewed , moving on to next invoice ...")
 			continue
 		}
-
 
 		fmt.Println("Sending invoice with number => ", invoiceNumber)
 
@@ -124,11 +120,8 @@ func main() {
 			continue
 		}
 
-		fmt.Println("Successfully queued invoice => ",  inv.Number  ,"for sending, it should be sent soon. ")
-
+		fmt.Println("Successfully queued invoice => ", inv.Number, "for sending, it should be sent soon. ")
 
 	}
-
-
 
 }

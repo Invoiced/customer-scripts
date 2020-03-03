@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -33,7 +32,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("Is this a Production connection => ",prodEnv)
+	fmt.Println("Is this a Production connection => ", prodEnv)
 
 	fmt.Println("Please confirm, this program is about issue all draft invoices, please type in YES to continue: ")
 	confirm, _ := reader.ReadString('\n')
@@ -51,7 +50,7 @@ func main() {
 
 	fmt.Println("Fetching draft invoices")
 
-	invoices, err := conn.NewInvoice().ListAll(nil,nil)
+	invoices, err := conn.NewInvoice().ListAll(nil, nil)
 
 	if err != nil {
 		panic("could not fetch draft invoices")
@@ -73,9 +72,6 @@ func main() {
 			}
 		}
 
-
 	}
-
-
 
 }

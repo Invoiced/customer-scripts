@@ -34,7 +34,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("Is this a Production connection? => ", prodEnv)
+	fmt.Println("Is this a Production connection? => ", !prodEnv)
 
 	fmt.Println("Please specify your excel file: ")
 	fileLocation, _ := reader.ReadString('\n')

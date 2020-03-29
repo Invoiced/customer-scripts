@@ -17,7 +17,7 @@ import (
 
 func main() {
 	//declare and init command line flags
-	prodEnv := true
+	sandBoxEnv := true
 	key := flag.String("key", "", "api key in Settings > Developer")
 	environment := flag.String("env", "", "your environment production or sandbox")
 	fileLocation := flag.String("file", "", "specify your excel file")
@@ -33,28 +33,22 @@ func main() {
 
 	*environment = strings.ToUpper(strings.TrimSpace(*environment))
 
-	if *environment == "P" || strings.Contains(*environment, "PRODUCTION") {
-		prodEnv = false
+	*environment = strings.ToUpper(strings.TrimSpace(*environment))
+
+	if *environment == "" {
+		fmt.Println("Enter P for Production, S for Sandbox: ")
+		*environment, _ = reader.ReadString('\n')
+		*environment = strings.TrimSpace(*environment)
+	}
+
+	if *environment == "P" {
+		sandBoxEnv = false
 		fmt.Println("Using Production for the environment")
-	} else if *environment == "S" || strings.Contains(*environment, "SANDBOX") {
+	} else if *environment == "S" {
 		fmt.Println("Using Sandbox for the environment")
 	} else {
-		for {
-
-			fmt.Println("What is your environment, please enter P for production or S for sandbox: ")
-			env, _ := reader.ReadString('\n')
-			env = strings.ToUpper(strings.TrimSpace(env))
-
-			if env == "P" || strings.Contains(env, "PRODUCTION") {
-				prodEnv = false
-				fmt.Println("Using Production for the environment")
-				break
-			} else if env == "S" || strings.Contains(env, "SANDBOX") {
-				fmt.Println("Using Sandbox for the environment")
-				break
-			}
-		}
-
+		fmt.Println("Unrecognized value ", *environment, ", enter P or S only")
+		return
 	}
 
 	if *fileLocation == "" {
@@ -63,15 +57,14 @@ func main() {
 		*fileLocation = strings.TrimSpace(*fileLocation)
 	}
 
-	fmt.Println(prodEnv)
 
-	conn := invdapi.NewConnection(*key, prodEnv)
+	conn := invdapi.NewConnection(*key, sandBoxEnv)
 
 	filter := invdendpoint.NewFilter()
 	filter.Set("canceled", false)
 	filter.Set("finished", false)
 
-	fmt.Println("Getting Subscriptions ...")
+	fmt.Println("This program generates a excel file with a export of active subscriptions")
 
 	subscriptions, err := conn.NewSubscription().ListAll(filter, nil)
 
@@ -188,5 +181,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Subscriptions successfully saved")
+	fmt.Println("Subscriptions successfully saved to ", *fileLocation)
 }

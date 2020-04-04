@@ -148,6 +148,10 @@ func main() {
 					invToCreate.Invoice = invoice.Invoice
 					invToCreate.Customer = customerTo.Id
 					invToCreate.Number = invToCreate.Number + "CP"
+					if invToCreate.Metadata == nil {
+						invToCreate.Metadata = make(map[string]interface{})
+					}
+					invToCreate.Metadata["sub_account"] = customerFrom.Name
 
 					createdInv, err := conn.NewInvoice().Create(invToCreate)
 
@@ -177,6 +181,10 @@ func main() {
 						transaction.ParentTransaction = 0
 						tranactionToCreate := conn.NewTransaction()
 						tranactionToCreate.Transaction = transaction.Transaction
+						if tranactionToCreate.Metadata == nil {
+							tranactionToCreate.Metadata = make(map[string]interface{})
+						}
+						tranactionToCreate.Metadata["sub_account"] = customerFrom.Name
 						createdTrans, err := conn.NewTransaction().Create(tranactionToCreate)
 
 						if err != nil {

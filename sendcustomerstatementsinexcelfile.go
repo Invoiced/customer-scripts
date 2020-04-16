@@ -22,7 +22,7 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Println("This program will send customers statements for customers in the excelfile")
+	fmt.Println("This program will send customers statements for customers in the excel file")
 
 	if *key == "" {
 		fmt.Print("Please enter your API Key: ")
@@ -73,7 +73,7 @@ func main() {
 	}
 
 	if len(rows) == 0 {
-		fmt.Println("No subscription data to update")
+		fmt.Println("No customer statements to send")
 	}
 
 	rows = rows[1:len(rows)]
@@ -88,6 +88,8 @@ func main() {
 			fmt.Println("Error getting customer with number => ", customerNumber, ", error => ", err)
 			continue
 		}
+
+		fmt.Println("Sending customer statement for customer with number => ", customerNumber)
 
 		_, err = customer.SendStatementEmail(nil)
 

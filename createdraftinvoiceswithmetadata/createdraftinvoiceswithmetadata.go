@@ -4,18 +4,22 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/invoiced/invoiced-go"
-	"github.com/Invoiced/invoiced-go/invdendpoint"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/Invoiced/invoiced-go/invdendpoint"
+	invdapi "github.com/invoiced/invoiced-go"
 )
 
 //This program will create credit memos on Invoiced; one per row
 // rows must be of the form:
 // [0]: {customer_number}
 // [1]: {invoice_number}
+// [2]: {quantity}
+// [3]: {unit_cost}
+// [4]: {metadata} of the form field1=value1&field2=value2 etc.
 
 func main() {
 	sandBoxEnv := true
@@ -90,9 +94,9 @@ func main() {
 	for k, row := range rows {
 
 		customerParsed := strings.TrimSpace(row[customerNumberIndex])
-		invoiceParsed :=  strings.TrimSpace(row[invoiceNumberIndex])
+		invoiceParsed := strings.TrimSpace(row[invoiceNumberIndex])
 		quantityParsed := strings.TrimSpace(row[quantityIndex])
-		unitCostParsed :=  strings.TrimSpace(row[unitCostIndex])
+		unitCostParsed := strings.TrimSpace(row[unitCostIndex])
 		metadataParsed := strings.TrimSpace(row[metadataIndex])
 
 		// we don't need to error check these because they can be defaults (0) and it's fine
@@ -146,7 +150,5 @@ func main() {
 
 		fmt.Println("Invoice created successfully: " + invoice.Number)
 	}
-
-
 
 }

@@ -14,8 +14,8 @@ import (
 
 //This program will create credit memos on Invoiced; one per row
 // rows must be of the form:
-// [0]: {customer_number}
-// [1]: {invoice_number}
+// [0]: {invoice_number}
+// [1]: {amount_to_credit}
 
 func main() {
 	sandBoxEnv := true
@@ -27,7 +27,7 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Println("This program will create credit memos to cancel out invoices from the excel file")
+	fmt.Println("This program will create credit memos to partially pay off invoices from the excel file")
 
 	if *key == "" {
 		fmt.Print("Please enter your API Key: ")
@@ -69,8 +69,10 @@ func main() {
 
 	fmt.Println("Read in excel file ", *fileLocation, ", successfully")
 
-	customerNumberIndex := 0
-	invoiceNumberIndex := 1
+	invoiceNumberIndex := 0
+	creditMemoQtyColumn := 1
+	creditMemoUnitCostColumn := 2
+	creditMemoNameColumn := 3
 
 	rows, err := f.GetRows("Sheet1")
 
@@ -79,60 +81,71 @@ func main() {
 	}
 
 	if len(rows) == 0 {
-		fmt.Println("No customer statements to send")
+		fmt.Println("No invoice numbers in excel sheet to create credit memos")
 	}
 
 	rows = rows[1:len(rows)]
 
 	for _, row := range rows {
 
-		customerParsed := strings.TrimSpace(row[customerNumberIndex])
-		invoiceParsed := strings.TrimSpace(row[invoiceNumberIndex])
+		invoiceNumberParsed := strings.TrimSpace(row[invoiceNumberIndex])
+		creditMemoQtyRaw := strings.TrimSpace(row[creditMemoQtyColumn])
+		creditMemoUnitCostRaw := strings.TrimSpace(row[creditMemoUnitCostColumn])
+		creditMemoName := strings.TrimSpace(row[creditMemoNameColumn])
 
-		customerNumber, err := strconv.Atoi(customerParsed)
+		creditMemoQty, err := strconv.ParseFloat(creditMemoQtyRaw,64)
 
 		if err != nil {
-			fmt.Println("Error parsing customer number " + customerParsed + "; skipping")
+			fmt.Println("Error parsing qty value," + creditMemoQtyRaw + ",for" +
+				"invoice #"+ invoiceNumberParsed)
 			continue
 		}
 
-		invoiceNumber, err := strconv.Atoi(invoiceParsed)
+		creditMemoUnitCost, err := strconv.ParseFloat(creditMemoUnitCostRaw,64)
 
 		if err != nil {
-			fmt.Println("Error parsing invoice number " + invoiceParsed + "; skipping")
+			fmt.Println("Error parsing unit cost value," + creditMemoUnitCostRaw + ",for" +
+				"invoice #"+ invoiceNumberParsed)
+			continue
 		}
 
-		invoice, err := conn.NewInvoice().Retrieve(int64(invoiceNumber))
+
+		invoice, err := conn.NewInvoice().ListInvoiceByNumber(invoiceNumberParsed)
 
 		if err != nil {
 			fmt.Println("Error retrieving value of credit note;" +
-				"invoice "+ invoiceParsed +" does not exist")
+				"invoice #"+ invoiceNumberParsed +" does not exist")
+			continue
+		}
+
+		if invoice == nil {
+			fmt.Println("Error retrieving value of credit note;" +
+				"invoice #"+ invoiceNumberParsed +" does not exist")
 			continue
 		}
 
 		// create simplified items to pass into credit note
 		// if we don't do this, request will fail
-		items := make([]invdendpoint.LineItem, len(invoice.Items))
-		for k, v := range invoice.Items {
-			items[k].Name = v.Name
-			items[k].Quantity = v.Quantity
-			items[k].UnitCost = v.UnitCost
-		}
+		items := make([]invdendpoint.LineItem, 1)
+		items[0].Name = creditMemoName
+		items[0].Quantity = creditMemoQty
+		items[0].UnitCost = creditMemoUnitCost
+
 
 		creditNote := conn.NewCreditNote()
-		creditNote.Customer = int64(customerNumber)
-		creditNote.Invoice = int64(invoiceNumber)
+		creditNote.Customer = invoice.Customer
+		creditNote.Invoice = invoice.Id
 		creditNote.Items = items
 
 		_, err = creditNote.Create(creditNote)
 
 		if err != nil {
-			fmt.Println("Error creating credit note for invoice " + invoiceParsed +
+			fmt.Println("Error creating credit note for invoice " + invoiceNumberParsed +
 				" - error: " + err.Error())
 			continue
 		}
 
-		fmt.Println("Successfully created & issued credit note for invoice " + invoiceParsed)
+		fmt.Println("Successfully created & issued credit note for invoice " + invoiceNumberParsed)
 	}
 
 

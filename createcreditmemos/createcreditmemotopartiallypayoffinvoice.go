@@ -73,6 +73,7 @@ func main() {
 	creditMemoQtyColumn := 1
 	creditMemoUnitCostColumn := 2
 	creditMemoNameColumn := 3
+	creditMemoNumberColumn := 4
 
 	rows, err := f.GetRows("Sheet1")
 
@@ -92,6 +93,7 @@ func main() {
 		creditMemoQtyRaw := strings.TrimSpace(row[creditMemoQtyColumn])
 		creditMemoUnitCostRaw := strings.TrimSpace(row[creditMemoUnitCostColumn])
 		creditMemoName := strings.TrimSpace(row[creditMemoNameColumn])
+		creditMemoNumber := strings.TrimSpace(row[creditMemoNumberColumn])
 
 		creditMemoQty, err := strconv.ParseFloat(creditMemoQtyRaw,64)
 
@@ -136,6 +138,9 @@ func main() {
 		creditNote.Customer = invoice.Customer
 		creditNote.Invoice = invoice.Id
 		creditNote.Items = items
+		if len(creditMemoNumber) > 0 {
+			creditNote.Number = creditMemoNumber
+		}
 
 		_, err = creditNote.Create(creditNote)
 

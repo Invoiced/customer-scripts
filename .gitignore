@@ -16,3 +16,4 @@
 
 # Ignore git files
 *.xlsx
+*_internal.go

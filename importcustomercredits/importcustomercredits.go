@@ -89,6 +89,9 @@ func main() {
 		if err != nil {
 			fmt.Println("Error getting customer with number => ", customerNumber, ", error => ", err)
 			continue
+		} else if customer == nil {
+			fmt.Println("Customer does not exist with number => ", customerNumber, ", error => ", err)
+			continue
 		}
 
 		creditAmtToAddVal := strings.TrimSpace(row[creditAmtToAddIndex])

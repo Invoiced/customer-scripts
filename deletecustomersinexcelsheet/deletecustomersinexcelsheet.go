@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-//This program will send customer statements in excel sheet
+//This program will delete customers in an excel sheet
 
 func main() {
 	sandBoxEnv := true
@@ -22,7 +22,7 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Println("This program will send customers statements for customers in the excel file")
+	fmt.Println("This program will delete customers specified in the excel sheet")
 
 	if *key == "" {
 		fmt.Print("Please enter your API Key: ")
@@ -54,6 +54,15 @@ func main() {
 		*fileLocation = strings.TrimSpace(*fileLocation)
 	}
 
+	fmt.Println("Please confirm, this program is about to delete all of the customers specified in the excel sheet, please type in YES to continue: ")
+	confirm, _ := reader.ReadString('\n')
+	confirm = strings.TrimSpace(confirm)
+
+	if confirm != "YES" {
+		fmt.Println("Halting program, confirm sequence not confirmed")
+		return
+	}
+
 	conn := invdapi.NewConnection(*key, sandBoxEnv)
 
 	f, err := excelize.OpenFile(*fileLocation)
@@ -73,7 +82,7 @@ func main() {
 	}
 
 	if len(rows) == 0 {
-		fmt.Println("No customer statements to send")
+		fmt.Println("No customers in excel sheet to delete")
 	}
 
 	rows = rows[1:len(rows)]
@@ -92,16 +101,16 @@ func main() {
 			continue
 		}
 
-		fmt.Println("Sending customer statement for customer with number => ", customerNumber)
+		fmt.Println("Deleting customer with number =>", customerNumber)
 
-		_, err = customer.SendStatementEmail(nil)
+		err = customer.Delete()
 
 		if err != nil {
-			fmt.Println("Error sending statement for customer with number => ", customerNumber, ", error => ", err)
+			fmt.Println("Error deleting customer with number =>", customerNumber, ", error => ", err)
 			continue
 		}
 
-		fmt.Println("Successfully queued statement for customer number => ", customerNumber, "for sending, it should be sent soon. ")
+		fmt.Println("Deleted customer with number =>", customerNumber)
 
 	}
 

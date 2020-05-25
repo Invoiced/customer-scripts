@@ -106,8 +106,8 @@ func main() {
 			continue
 		}
 
-		if inv.Status != "not_sent" {
-			fmt.Println("Invoice is already sent, paid, voided, viewed , moving on to next invoice ...")
+		if inv.Status == "draft" || inv.Status == "pending" || inv.Status == "paid" || inv.Status == "voided" {
+			fmt.Println("Invoice is already in draft, pending, paid, voided, skipping and moving on to next invoice ...")
 			continue
 		}
 

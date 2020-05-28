@@ -131,8 +131,28 @@ func main() {
 				}
 
 				if fetchInv != nil {
-					fmt.Println("Found invoice", invoice.Number + "CP,","skipping transferring it")
-					continue
+					transactionsFetched, err :=	conn.NewTransaction().ListSuccessfulPaymentsByInvoiceID(fetchInv.Id)
+					if err != nil {
+						fmt.Println("Error fetching payments for associated invoice => ", fetchInv.Number)
+					}
+
+					if transactionsFetched != nil || len(transactionsFetched) > 0 {
+						for _, transactionFetched := range transactionsFetched{
+							fmt.Println("Deleting transaction with id = ", transactionFetched.Id)
+							err = transactionFetched.Delete()
+							if err != nil {
+								fmt.Println("Error in deleting transaction with id = ",transactionFetched.Id,err.Error() )
+							}
+						}
+					}
+
+					err = fetchInv.Delete()
+
+					if err != nil {
+						fmt.Println("Error deleting invoice ",fetchInv.Number, "err => ", err.Error())
+						continue
+					}
+					fetchInv = nil
 				}
 
 				if fetchInv == nil {

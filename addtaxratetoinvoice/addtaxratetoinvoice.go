@@ -93,7 +93,7 @@ func main() {
 		taxRateMap[taxRate.Id] = taxRate.TaxRate
 	}
 
-	for _, row := range rows {
+	for i, row := range rows {
 
 		invoiceNumber := strings.TrimSpace(row[invoiceNumberIndex])
 		taxCode := strings.TrimSpace(row[taxCodeIndex])
@@ -125,6 +125,11 @@ func main() {
 
 		invToUpdate.Id = invoice.Id
 		invToUpdate.Taxes = append(invToUpdate.Taxes,*taxToAdd)
+		invToUpdate.Closed = invoice.Closed
+
+		if invoice.Closed {
+			invToUpdate.Closed = false
+		}
 
 
 		err = invToUpdate.Save()
@@ -135,6 +140,11 @@ func main() {
 		}
 
 		fmt.Println("Successfully added tax")
+
+		if i == 0 {
+			panic("Break now")
+		}
+
 
 	}
 

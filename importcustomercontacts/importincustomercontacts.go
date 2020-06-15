@@ -7,6 +7,7 @@ import (
 	"github.com/Invoiced/invoiced-go/invdendpoint"
 	"github.com/invoiced/invoiced-go"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -49,7 +50,20 @@ func main() {
 
 	fmt.Println("Read in excel file ", fileLocation, ", successfully")
 
-	columnIndex := 0
+	customerNumberIndex := 0
+	contactNameIndex := 1
+	contactTitleIndex := 2
+	contactEmailIndex := 3
+	contactPhoneIndex := 4
+	contactPrimaryIndex := 5
+	contactSMSEnabledIndex := 6
+	contactDepartmentIndex := 7
+	contactAddress1Index := 8
+	contactAddress2Index := 9
+	contactCityIndex := 10
+	contactStateIndex := 11
+	contactPostalCodeIndex := 12
+	contactCountryIndex := 13
 
 	rows, err := f.GetRows("Sheet1")
 
@@ -75,79 +89,92 @@ func main() {
 			continue
 		}
 
-		customerNumber := strings.TrimSpace(row[columnIndex])
+		customerNumber := strings.TrimSpace(row[customerNumberIndex])
+		contactName := strings.TrimSpace(row[contactNameIndex])
+		contactTitle := strings.TrimSpace(row[contactTitleIndex])
+		contactEmail := strings.TrimSpace(row[contactEmailIndex])
+		contactPhone := strings.TrimSpace(row[contactPhoneIndex])
+		contactPrimaryStr := strings.TrimSpace(row[contactPrimaryIndex])
+		contactSMSEnabledStr := strings.TrimSpace(row[contactSMSEnabledIndex])
+		contactDepartment := strings.TrimSpace(row[contactDepartmentIndex])
+		contactAddress1 := strings.TrimSpace(row[contactAddress1Index])
+		contactAddress2 := strings.TrimSpace(row[contactAddress2Index])
+		contactCity := strings.TrimSpace(row[contactCityIndex])
+		contactState := strings.TrimSpace(row[contactStateIndex])
+		contactPostalCode := strings.TrimSpace(row[contactPostalCodeIndex])
+		contactCountry := strings.TrimSpace(row[contactCountryIndex])
+
+		contactPrimary := false
+		contactSMSEnabled := false
+
+		fmt.Println(contactPrimaryStr,contactSMSEnabledStr)
+
+		contactPrimary, _ = strconv.ParseBool(contactPrimaryStr)
+		contactSMSEnabled, _ = strconv.ParseBool(contactSMSEnabledStr)
+
 		fmt.Println("customerNumber=>", customerNumber)
 
-		filter := invdendpoint.NewFilter()
-		filter.Set("number", customerNumber)
-
-		customers, err := conn.NewCustomer().ListAll(filter, nil)
+		customer, err := conn.NewCustomer().ListCustomerByNumber(customerNumber)
 
 		if err != nil {
-			fmt.Println("Error getting customer with number -> ", customerNumber, ", skipping.  Error => ", err)
+			fmt.Println("Error getting customer with number -> ", customerNumber, ", skipping.  Error =>", err)
 			continue
 		}
 
-		if customers == nil || len(customers) == 0 {
+		if customer == nil {
 			fmt.Println("Could not retrieve customer with number -> ", customerNumber)
 			continue
 		}
 
-		emails := strings.Split(strings.TrimSpace(row[3]), ",")
+		fetchedContacts, err := customer.ListAllContacts()
 
-		billingContactStr := strings.ToLower(strings.TrimSpace(row[5]))
-		billingContact := false
-
-		if strings.Contains(billingContactStr,"y") {
-			billingContact = true
+		if err != nil {
+			fmt.Println("Error getting contacts for customer => ", customerNumber, "Error =>",err)
+			continue
 		}
 
+		contactMap := make(map[string]invdendpoint.Contact)
 
+		for _, fetchedContact := range fetchedContacts {
+			contactMap[fetchedContact.Email] = fetchedContact
+		}
 
-		if len(emails) == 1 {
-			fmt.Println("Adding contact with email = ", emails[0])
-			fmt.Println("Billing contact -> ", billingContact)
-			contactToAdd := new(invdendpoint.Contact)
-			contactToAdd.Name = emails[0]
-			contactToAdd.Email = emails[0]
-			contactToAdd.Phone = strings.TrimSpace(row[4])
-			contactToAdd.Primary = billingContact
+		contactToAddUpdate, contactMatched := contactMap[contactEmail]
 
+		if !contactMatched {
+			contactToAddUpdate = invdendpoint.Contact{}
+		}
 
-			customer := customers[0]
+		contactToAddUpdate.Name = contactName
+		contactToAddUpdate.Email = contactEmail
+		contactToAddUpdate.Title = contactTitle
+		contactToAddUpdate.Phone = contactPhone
+		contactToAddUpdate.Primary = contactPrimary
+		contactToAddUpdate.SmsEnabled = contactSMSEnabled
+		contactToAddUpdate.Department = contactDepartment
+		contactToAddUpdate.Address1 = contactAddress1
+		contactToAddUpdate.Address2 = contactAddress2
+		contactToAddUpdate.City = contactCity
+		contactToAddUpdate.State = contactState
+		contactToAddUpdate.PostalCode = contactPostalCode
+		contactToAddUpdate.Country = contactCountry
 
-			_, err = customer.CreateContact(contactToAdd)
-
+		if contactMatched {
+			_, err := customer.UpdateContact(&contactToAddUpdate)
 			if err != nil {
-				fmt.Println("Could not add contact, for customer => ", customer.Number, ", got error =>  ", err)
+				fmt.Println("Error updating contact with email =>", contactEmail, ", for Customer =>", customerNumber, ", err =>",err)
 				continue
 			}
-
-			fmt.Println("Successfully added contact ", contactToAdd.Name)
-		} else if len(emails) > 1 {
-			for _, email := range emails {
-				fmt.Println("Adding contact with email = ", emails[0])
-				fmt.Println("Billing contact -> ", billingContact)
-				contactToAdd := new(invdendpoint.Contact)
-				contactToAdd.Name = email
-				contactToAdd.Email = email
-				contactToAdd.Phone = strings.TrimSpace(row[4])
-				contactToAdd.Primary = billingContact
-				customer := customers[0]
-
-				_, err = customer.CreateContact(contactToAdd)
-
-				if err != nil {
-					fmt.Println("Could not add contact, for customer => ", customer.Number, ", got error =>  ", err)
-					continue
-				}
-
-				fmt.Println("Successfully added contact ", contactToAdd.Name)
-
+			fmt.Println("Successfully updated contact with email =>",contactEmail, ", for Customer =>",customerNumber)
+		} else {
+			_, err := customer.CreateContact(&contactToAddUpdate)
+			if err != nil {
+				fmt.Println("Error added contact with email =>", contactEmail, ", for Customer =>", customerNumber, ", err =>",err)
+				continue
 			}
-
+			fmt.Println("Successfully added contact with email =>",contactEmail, ", for Customer =>",customerNumber)
 		}
 
 	}
 
-}
+	}

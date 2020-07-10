@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/Invoiced/invoiced-go/invdendpoint"
 	"github.com/invoiced/invoiced-go"
 	"os"
 	"strings"
@@ -50,7 +51,10 @@ func main() {
 
 	fmt.Println("Fetching draft invoices")
 
-	invoices, err := conn.NewInvoice().ListAll(nil, nil)
+	filter := invdendpoint.NewFilter()
+	filter.Set("status","draft")
+
+	invoices, err := conn.NewInvoice().ListAll(filter, nil)
 
 	if err != nil {
 		panic("could not fetch draft invoices")
@@ -65,6 +69,7 @@ func main() {
 			invToUpdate.Id = invoice.Id
 			draft := false
 			invToUpdate.Draft = draft
+			invToUpdate.Sent = true
 			err := invToUpdate.Save()
 
 			if err != nil {

@@ -114,6 +114,7 @@ func main() {
 		invToUpdate := conn.NewInvoice()
 		invToUpdate.Id = fetchedInvoice.Id
 		invToUpdate.AutoPay = true
+		invToUpdate.DueDate = 0
 
 		if fetchedInvoice.Closed == false && fetchedInvoice.Paid == true {
 			invToUpdate.Closed = true

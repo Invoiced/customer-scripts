@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/Invoiced/invoiced-go/invdendpoint"
@@ -14,35 +15,50 @@ import (
 //This program will import in customer contacts
 
 func main() {
+	sandBoxEnv := true
+	key := flag.String("key", "", "api key in Settings > Developer")
+	environment := flag.String("env", "", "your environment production or sandbox")
+	fileLocation := flag.String("file", "", "specify your excel file")
+
+	flag.Parse()
+
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Please enter your API Key: ")
-	prodEnv := true
-	key, _ := reader.ReadString('\n')
-	key = strings.TrimSpace(key)
-	for {
 
-		fmt.Println("What is your environment, please enter P for production or S for sandbox: ")
-		env, _ := reader.ReadString('\n')
-		env = strings.ToUpper(strings.TrimSpace(env))
+	fmt.Println("This program will create invoices with metadata based on the excel file")
 
-		if env == "P" || strings.Contains(env, "PRODUCTION") {
-			prodEnv = false
-			fmt.Println("Using Production for the environment")
-			break
-		} else if env == "S" || strings.Contains(env, "SANDBOX") {
-			fmt.Println("Using Sandbox for the environment")
-			break
-		}
+	if *key == "" {
+		fmt.Print("Please enter your API Key: ")
+		*key, _ = reader.ReadString('\n')
+		*key = strings.TrimSpace(*key)
 	}
 
-	fmt.Println("Is this a Production connection? => ", !prodEnv)
+	*environment = strings.ToUpper(strings.TrimSpace(*environment))
 
-	fmt.Println("Please specify your excel file: ")
-	fileLocation, _ := reader.ReadString('\n')
+	if *environment == "" {
+		fmt.Println("Enter P for Production, S for Sandbox: ")
+		*environment, _ = reader.ReadString('\n')
+		*environment = strings.TrimSpace(*environment)
+	}
 
-	fileLocation = strings.TrimSpace(fileLocation)
+	if *environment == "P" {
+		sandBoxEnv = false
+		fmt.Println("Using Production for the environment")
+	} else if *environment == "S" {
+		fmt.Println("Using Sandbox for the environment")
+	} else {
+		fmt.Println("Unrecognized value ", *environment, ", enter P or S only")
+		return
+	}
 
-	f, err := excelize.OpenFile(fileLocation)
+	if *fileLocation == "" {
+		fmt.Println("Please specify your excel file: ")
+		*fileLocation, _ = reader.ReadString('\n')
+		*fileLocation = strings.TrimSpace(*fileLocation)
+	}
+
+	*fileLocation = strings.TrimSpace(*fileLocation)
+
+	f, err := excelize.OpenFile(*fileLocation)
 
 	if err != nil {
 		panic(err)
@@ -71,43 +87,79 @@ func main() {
 		panic("Error trying to get rows for the sheet" + err.Error())
 	}
 
-	fmt.Println("Please confirm, this program is about import contacts, specified by the customers in the excel file, please type in YES to continue: ")
-	confirm, _ := reader.ReadString('\n')
-	confirm = strings.TrimSpace(confirm)
 
-	if confirm != "YES" {
-		fmt.Println("Halting program, sequence not confirmed")
-		return
-	}
+	conn := invdapi.NewConnection(*key, sandBoxEnv)
 
-	conn := invdapi.NewConnection(key, prodEnv)
 
 	for i, row := range rows {
 
 		if i == 0 {
 			fmt.Println("Skipping header row")
+			fmt.Println(row)
 			continue
 		}
 
 		customerNumber := strings.TrimSpace(row[customerNumberIndex])
+		if customerNumber == "NONE"  {
+			customerNumber = ""
+		}
 		contactName := strings.TrimSpace(row[contactNameIndex])
+		if contactName == "NONE"  {
+			contactName = ""
+		}
+
 		contactTitle := strings.TrimSpace(row[contactTitleIndex])
+		if contactTitle == "NONE"  {
+			contactTitle = ""
+		}
 		contactEmail := strings.TrimSpace(row[contactEmailIndex])
+		if contactEmail == "NONE"  {
+			contactEmail = ""
+		}
 		contactPhone := strings.TrimSpace(row[contactPhoneIndex])
+		if contactPhone == "NONE"  {
+			contactPhone = ""
+		}
 		contactPrimaryStr := strings.TrimSpace(row[contactPrimaryIndex])
 		contactSMSEnabledStr := strings.TrimSpace(row[contactSMSEnabledIndex])
 		contactDepartment := strings.TrimSpace(row[contactDepartmentIndex])
+		if contactDepartment == "NONE"  {
+			contactDepartment = ""
+		}
 		contactAddress1 := strings.TrimSpace(row[contactAddress1Index])
+		if contactAddress1 == "NONE"  {
+			contactAddress1 = ""
+		}
 		contactAddress2 := strings.TrimSpace(row[contactAddress2Index])
+		if contactAddress2 == "NONE"  {
+			contactAddress2 = ""
+		}
 		contactCity := strings.TrimSpace(row[contactCityIndex])
+		if contactCity == "NONE"  {
+			contactCity = ""
+		}
 		contactState := strings.TrimSpace(row[contactStateIndex])
+		if contactState == "NONE"  {
+			contactState = ""
+		}
 		contactPostalCode := strings.TrimSpace(row[contactPostalCodeIndex])
+		if contactPostalCode == "NONE"  {
+			contactPostalCode = ""
+		}
 		contactCountry := strings.TrimSpace(row[contactCountryIndex])
+		if contactCountry == "NONE"  {
+			contactCountry = ""
+		}
+
+		if contactName == ""  {
+			contactName = contactEmail
+		}
 
 		contactPrimary := false
 		contactSMSEnabled := false
 
-		fmt.Println(contactPrimaryStr,contactSMSEnabledStr)
+		//invoiced will make the uppercase email lowercase so to void duplicates, just make it lowercase
+		contactEmail = strings.ToLower(contactEmail)
 
 		contactPrimary, _ = strconv.ParseBool(contactPrimaryStr)
 		contactSMSEnabled, _ = strconv.ParseBool(contactSMSEnabledStr)

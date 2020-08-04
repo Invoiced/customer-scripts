@@ -91,13 +91,20 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = f.SetCellValue("Sheet1", "C1", "Check Number")
+
+	err = f.SetCellValue("Sheet1", "C1", "Invoiced Amount")
 
 	if err != nil {
 		panic(err)
 	}
 
-	err = f.SetCellValue("Sheet1", "D1", "Location ID")
+	err = f.SetCellValue("Sheet1", "D1", "Check Number")
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = f.SetCellValue("Sheet1", "E1", "Location ID")
 
 	if err != nil {
 		panic(err)
@@ -113,53 +120,80 @@ func main() {
 		err = f.SetCellValue("Sheet1", "A"+strconv.Itoa(i+2), transaction.Customer)
 
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			continue
 		}
 
 
 		err = f.SetCellValue("Sheet1", "B"+strconv.Itoa(i+2), time.Unix(transaction.Date,0).String())
 
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			continue
 		}
 
-		t := time.Unix(transaction.CreatedAt, 0)
-
-		err = f.SetCellValue("Sheet1", "C"+strconv.Itoa(i+2), t.String())
+		err = f.SetCellValue("Sheet1", "C"+strconv.Itoa(i+2), transaction.Amount*-1)
 
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			continue
 		}
 
-		err = f.SetCellValue("Sheet1", "D"+strconv.Itoa(i+2), transaction.Paused)
+
+		err = f.SetCellValue("Sheet1", "D"+strconv.Itoa(i+2), transaction.GatewayId)
 
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			continue
 		}
 
-		err = f.SetCellValue("Sheet1", "E"+strconv.Itoa(i+2), transaction.Plan)
+	   if transaction.ParentTransaction > 0 {
 
-		if err != nil {
-			panic(err)
+	   	fetchedTransactionLevel1, err := conn.NewTransaction().Retrieve(transaction.ParentTransaction)
+
+	   	if err != nil {
+	   		fmt.Println("Error fetching parent transaction 1 => ", fetchedTransactionLevel1)
+	   		continue
+		} else if fetchedTransactionLevel1 == nil {
+			fmt.Println("No data for fetchedTransactionLevel1")
+			continue
+		} else if fetchedTransactionLevel1.ParentTransaction == 0 {
+			fmt.Println("No ParentTransactionLevel2")
+			continue
 		}
 
-		err = f.SetCellValue("Sheet1", "F"+strconv.Itoa(i+2), transaction.RecurringTotal)
+		fetchedTransactionLevel2, err := conn.NewTransaction().Retrieve(fetchedTransactionLevel1.ParentTransaction)
 
-		if err != nil {
-			panic(err)
-		}
+		   if err != nil {
+			   fmt.Println("Error fetching parent transaction 2 => ", fetchedTransactionLevel1)
+			   continue
+		   } else if fetchedTransactionLevel2 == nil {
+			   fmt.Println("No data for fetchedTransactionLevel2")
+			   continue
+		   } else if fetchedTransactionLevel2.Metadata == nil {
+		   	   fmt.Println("No metadata for fetchedTransactionLevel2")
+		   	   continue
+		   }
 
-		err = f.SetCellValue("Sheet1", "G"+strconv.Itoa(i+2), transaction.Status)
+		   val, ok := fetchedTransactionLevel2.Metadata["location"]
 
-		if err != nil {
-			panic(err)
-		}
+		   if ok {
+			   err = f.SetCellValue("Sheet1", "E"+strconv.Itoa(i+2), val.(string))
+
+			   if err != nil {
+				   fmt.Println(err)
+				   continue
+			   }
+		   }
+
+	   }
+
 	}
 
 	if err := f.SaveAs(*fileLocation); err != nil {
 		panic(err)
 	}
 
-	fmt.Println("Subscriptions successfully saved to ", *fileLocation)
+	fmt.Println("Overpayments successfully saved to ", *fileLocation)
 }
 

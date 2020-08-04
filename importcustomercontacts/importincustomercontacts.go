@@ -24,7 +24,7 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Println("This program will create invoices with metadata based on the excel file")
+	fmt.Println("This program import in customer contacts")
 
 	if *key == "" {
 		fmt.Print("Please enter your API Key: ")
@@ -165,6 +165,11 @@ func main() {
 		contactSMSEnabled, _ = strconv.ParseBool(contactSMSEnabledStr)
 
 		fmt.Println("customerNumber=>", customerNumber)
+
+		if len(customerNumber) == 0 {
+			fmt.Println("Customer number is empty skipping")
+			continue
+		}
 
 		customer, err := conn.NewCustomer().ListCustomerByNumber(customerNumber)
 

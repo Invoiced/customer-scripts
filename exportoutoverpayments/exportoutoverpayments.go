@@ -1,17 +1,16 @@
 package main
 
-
 import (
-"bufio"
-"flag"
-"fmt"
-"github.com/360EntSecGroup-Skylar/excelize"
-"github.com/Invoiced/invoiced-go/invdendpoint"
-"github.com/invoiced/invoiced-go"
-"os"
-"strconv"
-"strings"
-"time"
+	"bufio"
+	"flag"
+	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/Invoiced/invoiced-go/invdendpoint"
+	"github.com/invoiced/invoiced-go"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 )
 
 //This program export out invoice payments
@@ -81,7 +80,7 @@ func main() {
 	// Save xlsx file by the given path.
 
 	//set headers
-	err = f.SetCellValue("Sheet1", "A1", "Customer ID")
+	err = f.SetCellValue("Sheet1", "A1", "Customer Number")
 
 	if err != nil {
 		panic(err)
@@ -92,7 +91,7 @@ func main() {
 		panic(err)
 	}
 
-	err = f.SetCellValue("Sheet1", "C1", "Invoiced Amount")
+	err = f.SetCellValue("Sheet1", "C1", "Amount")
 
 	if err != nil {
 		panic(err)
@@ -117,7 +116,18 @@ func main() {
 			continue
 		}
 
-		err = f.SetCellValue("Sheet1", "A"+strconv.Itoa(i+2), transaction.Customer)
+		customer, err := conn.NewCustomer().Retrieve(transaction.Customer)
+
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		if customer == nil {
+			continue
+		}
+
+		err = f.SetCellValue("Sheet1", "A"+strconv.Itoa(i+2), customer.Number)
 
 		if err != nil {
 			fmt.Println(err)
@@ -125,14 +135,14 @@ func main() {
 		}
 
 
-		err = f.SetCellValue("Sheet1", "B"+strconv.Itoa(i+2), time.Unix(transaction.Date,0).String())
+		err = f.SetCellValue("Sheet1", "B"+strconv.Itoa(i+2), time.Unix(transaction.Date,0).Format("2006-01-02"))
 
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
-		err = f.SetCellValue("Sheet1", "C"+strconv.Itoa(i+2), transaction.Amount*-1)
+		err = f.SetCellValue("Sheet1", "C"+strconv.Itoa(i+2), fmt.Sprintf("%.2f",transaction.Amount*-1))
 
 		if err != nil {
 			fmt.Println(err)
@@ -146,6 +156,7 @@ func main() {
 			fmt.Println(err)
 			continue
 		}
+
 
 	   if transaction.ParentTransaction > 0 {
 

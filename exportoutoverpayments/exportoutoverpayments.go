@@ -109,8 +109,9 @@ func main() {
 		panic(err)
 	}
 
+	j := -1
 
-	for i, transaction := range transactions {
+	for _, transaction := range transactions {
 
 		if transaction.Notes != "Overpayment" {
 			continue
@@ -127,7 +128,23 @@ func main() {
 			continue
 		}
 
-		err = f.SetCellValue("Sheet1", "A"+strconv.Itoa(i+2), customer.Number)
+		j += 1
+
+		err = f.SetCellValue("Sheet1", "A"+strconv.Itoa(j+2), customer.Number)
+
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		err = f.SetCellValue("Sheet1", "B"+strconv.Itoa(j+2), time.Unix(transaction.Date,0).Format("2006-01-02"))
+
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		err = f.SetCellValue("Sheet1", "C"+strconv.Itoa(j+2), fmt.Sprintf("%.2f",transaction.Amount*-1))
 
 		if err != nil {
 			fmt.Println(err)
@@ -135,22 +152,7 @@ func main() {
 		}
 
 
-		err = f.SetCellValue("Sheet1", "B"+strconv.Itoa(i+2), time.Unix(transaction.Date,0).Format("2006-01-02"))
-
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-
-		err = f.SetCellValue("Sheet1", "C"+strconv.Itoa(i+2), fmt.Sprintf("%.2f",transaction.Amount*-1))
-
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-
-
-		err = f.SetCellValue("Sheet1", "D"+strconv.Itoa(i+2), transaction.GatewayId)
+		err = f.SetCellValue("Sheet1", "D"+strconv.Itoa(j+2), transaction.GatewayId)
 
 		if err != nil {
 			fmt.Println(err)
@@ -189,7 +191,7 @@ func main() {
 		   val, ok := fetchedTransactionLevel2.Metadata["location"]
 
 		   if ok {
-			   err = f.SetCellValue("Sheet1", "E"+strconv.Itoa(i+2), val.(string))
+			   err = f.SetCellValue("Sheet1", "E"+strconv.Itoa(j+2), val.(string))
 
 			   if err != nil {
 				   fmt.Println(err)
@@ -198,6 +200,7 @@ func main() {
 		   }
 
 	   }
+
 
 	}
 

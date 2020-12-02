@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/dgrijalva/jwt-go"
 	"io/ioutil"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 )
 
 // Export Customer With Magic Login Links
-// This script prints CSV-formatted data to stdout in the following format:
+// This script prints CSV-formatted data to excel in the following format:
 // Customer Name | Customer Number | Magic Link
 // string        | string          | URL (string)
 
@@ -27,6 +28,8 @@ const (
 	IsInvoicedSandbox        = true // FIXME: Change to false if account is not sandbox
 
 	TokenTTL = time.Hour * 24 * 90 // FIXME: Update token TTL as desired; default is 90 days
+
+	ResultFileName = "output" // FIXME: Edit file name (not including .xlsx suffix) for exported file as desired
 )
 
 type invoicedCustomer struct {
@@ -104,12 +107,18 @@ func main() {
 	// set up invoiced client
 	client := NewInvoicedClient(InvoicedApiKey, IsInvoicedSandbox)
 
-	// print first row for CSV format
-	fmt.Println("Customer Name,Customer Number,Magic Link")
+	// create excel file and specify header rows
+	f := excelize.NewFile()
+	_ = f.SetCellValue("Sheet1", "A1", "Customer Name")
+	_ = f.SetCellValue("Sheet1", "B1", "Customer Number")
+	_ = f.SetCellValue("Sheet1", "C1", "Magic Link")
+
+	// set starting row number
+	rowNum := 2
 
 	customers, err := client.getAllCustomers()
 	if err != nil {
-		panic(err.Error())
+		panic(err)
 	}
 
 	for _, c := range customers {
@@ -124,9 +133,15 @@ func main() {
 			fmt.Println(err.Error())
 		}
 
-		row := c.Name + "," + c.Number + "," + "https://" + InvoicedCompanySubdomain +
-			".invoiced.com/login/" + tokenString
+		_ = f.SetCellValue("Sheet1", "A"+strconv.Itoa(rowNum), c.Name)
+		_ = f.SetCellValue("Sheet1", "B"+strconv.Itoa(rowNum), c.Number)
+		_ = f.SetCellValue("Sheet1", "C"+strconv.Itoa(rowNum),
+			"https://"+InvoicedCompanySubdomain+".invoiced.com/login/"+tokenString)
 
-		fmt.Println(row)
+		rowNum += 1
+	}
+
+	if err = f.SaveAs(ResultFileName+".xlsx"); err != nil {
+		panic(err)
 	}
 }

@@ -1,0 +1,1 @@
+createcreditmemoforcustomer -key=API-KEY  -env=P -file=negative-invoices.xlsx

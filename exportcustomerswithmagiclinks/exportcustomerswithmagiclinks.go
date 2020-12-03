@@ -36,6 +36,7 @@ type invoicedCustomer struct {
 	Name   string `json:"name"`
 	Number string `json:"number"`
 	ID     int    `json:"id"`
+	Email  string `json:"email"`
 }
 
 type InvoicedClient struct {
@@ -111,7 +112,8 @@ func main() {
 	f := excelize.NewFile()
 	_ = f.SetCellValue("Sheet1", "A1", "Customer Name")
 	_ = f.SetCellValue("Sheet1", "B1", "Customer Number")
-	_ = f.SetCellValue("Sheet1", "C1", "Magic Link")
+	_ = f.SetCellValue("Sheet1", "C1", "Customer Email")
+	_ = f.SetCellValue("Sheet1", "D1", "Magic Link")
 
 	// set starting row number
 	rowNum := 2
@@ -135,7 +137,8 @@ func main() {
 
 		_ = f.SetCellValue("Sheet1", "A"+strconv.Itoa(rowNum), c.Name)
 		_ = f.SetCellValue("Sheet1", "B"+strconv.Itoa(rowNum), c.Number)
-		_ = f.SetCellValue("Sheet1", "C"+strconv.Itoa(rowNum),
+		_ = f.SetCellValue("Sheet1", "C"+strconv.Itoa(rowNum), c.Email)
+		_ = f.SetCellValue("Sheet1", "D"+strconv.Itoa(rowNum),
 			"https://"+InvoicedCompanySubdomain+".invoiced.com/login/"+tokenString)
 
 		rowNum += 1

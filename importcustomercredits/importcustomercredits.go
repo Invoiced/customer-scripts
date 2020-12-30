@@ -5,7 +5,7 @@ import (
 "flag"
 "fmt"
 "github.com/360EntSecGroup-Skylar/excelize"
-"github.com/invoiced/invoiced-go"
+"github.com/Invoiced/invoiced-go"
 "os"
 	"strconv"
 	"strings"
@@ -109,12 +109,7 @@ func main() {
 
 		fmt.Println("Going to add credit for customer with number", customerNumber,"for amount => ",1*creditAmt)
 
-		transactionToCreate := conn.NewTransaction()
-		transactionToCreate.Amount = creditAmt
-		transactionToCreate.Type = "adjustment"
-		transactionToCreate.Customer = customer.Id
-
-		_, err = conn.NewTransaction().Create(transactionToCreate)
+		_, err = customer.CreateCreditBalanceAdjustment(creditAmt)
 
 		if err != nil && !strings.Contains(err.Error(),"cannot unmarshal string into Go struct field Transaction.id of type int64") {
 			fmt.Println("Error creating credit for customer with number => ", customerNumber, ", error => ", err)

@@ -68,11 +68,7 @@ func main() {
 	customerNumberIndex := 0
 	creditAmtToAddIndex := 1
 
-	rows, err := f.GetRows("Sheet1")
-
-	if err != nil {
-		panic("Error trying to get rows for the sheet" + err.Error())
-	}
+	rows := f.GetRows("Sheet1")
 
 	if len(rows) == 0 {
 		fmt.Println("No customer credits to add")
@@ -109,7 +105,7 @@ func main() {
 
 		fmt.Println("Going to add credit for customer with number", customerNumber,"for amount => ",1*creditAmt)
 
-		_, err = customer.CreateCreditBalanceAdjustment(creditAmt)
+		_, err = customer.CreateCreditBalanceAdjustment(-1 * creditAmt)
 
 		if err != nil && !strings.Contains(err.Error(),"cannot unmarshal string into Go struct field Transaction.id of type int64") {
 			fmt.Println("Error creating credit for customer with number => ", customerNumber, ", error => ", err)

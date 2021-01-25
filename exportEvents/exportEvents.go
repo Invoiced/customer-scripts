@@ -23,7 +23,7 @@ func main() {
 	startdate := flag.String("startdate", "", "Your start date for the event period in MMDDYYYY format")
 	enddate := flag.String("enddate", "", "Your end date for the event period in MMDDYYYY format")
 	eventType := flag.String("eventType", "", "What event are filtering on ie invoice.created, invoiced.updated")
-	invoicedUser := flag.String("invoicedUser", "", "What event are filtering on ie invoice.created, invoiced.updated")
+	invoicedUser := flag.String("invoicedUser", "", "What users created this event")
 
 	fileLocation := flag.String("file", "", "specify your excel file")
 	flag.Parse()

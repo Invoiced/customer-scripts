@@ -71,6 +71,10 @@ func main() {
 	beginTime := time.Time{}
 	endTime := time.Time{}
 
+	fmt.Println("Startdate entered => ", *startdate)
+	fmt.Println("Enddate entered => ", *enddate)
+
+
 	if *startdate == "" {
 		for {
 			fmt.Print("Please enter your start date in MMDDYYYY format: ")
@@ -87,6 +91,19 @@ func main() {
 			}
 
 		}
+	} else {
+		*startdate = strings.TrimSpace(*startdate)
+
+		loc := time.Now().Location()
+		var err error
+
+		beginTime, err = time.ParseInLocation("01022006", *startdate, loc)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
 	}
 
 	if *enddate == "" {
@@ -103,6 +120,18 @@ func main() {
 				break
 			}
 		}
+	} else {
+		*enddate = strings.TrimSpace(*enddate)
+
+		loc := time.Now().Location()
+		var err error
+		endTime, err = time.ParseInLocation("01022006", *enddate, loc)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
 	}
 
 	if *eventType == "" {

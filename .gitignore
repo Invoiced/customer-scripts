@@ -17,3 +17,5 @@
 # Ignore git files
 *.xlsx
 *_internal.go
+*.zip
+*.exe

@@ -31,7 +31,7 @@ func main() {
 		}
 
 		//Change Me - change to a unix timestamp where all invoices dated before this timestamp will have late fees removed
-		removeLateFeesBeforeUnixDate := 1609477200
+		removeLateFeesBeforeUnixDate := int64(1609477200)
 
 		if invoice.Date < removeLateFeesBeforeUnixDate {
 			fmt.Println("Removing late fee for invoice number ", invoice.Number, ", invoice.date ", invoice.Date)

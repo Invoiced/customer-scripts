@@ -191,6 +191,22 @@ func main() {
 		fmt.Println("Creating notifications for user ", userEmail)
 
 		for _, userNotificationEvent := range userNotificationEvents {
+			if userNotificationEvent == "never" || userNotificationEvent == "day" || userNotificationEvent == "month" || userNotificationEvent == "week" {
+
+				if userNotificationEvent == "never" {
+					userNotificationEvent = ""
+				}
+
+				_,err = user.SetUserEmailFrequency(userNotificationEvent,user.Id)
+
+				if err != nil {
+					fmt.Println("Error updating frequency to ",userNotificationEvent," for user = ", user.User.Email)
+				}
+
+				continue
+
+			}
+
 			notificationRequest := new(invdendpoint.NotificationRequest)
 			notificationRequest.Enabled = true
 			notificationRequest.Event = userNotificationEvent

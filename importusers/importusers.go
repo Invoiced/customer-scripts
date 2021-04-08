@@ -124,7 +124,7 @@ func main() {
 		if err != nil {
 			fmt.Println("Got an error while creating user ", userEmail, ", error -> ",err.Error())
 		} else {
-			fmt.Println("Successfully created user with email = ",createdUser.User.Email)
+			fmt.Println("Successfully created user with email = ",createdUser.User.Email, "and id = ",createdUser.Id)
 		}
 
 

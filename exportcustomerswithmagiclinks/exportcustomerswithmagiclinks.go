@@ -1,14 +1,18 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/dgrijalva/jwt-go"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -21,15 +25,10 @@ const (
 	baseURL = "https://api.invoiced.com"
 	testURL = "https://api.sandbox.invoiced.com"
 
-	InvoicedMagicLinkKey = "" // FIXME: Add Invoiced magic link key
-	InvoicedApiKey       = "" // FIXME: Add Invoiced regular API Key
 
-	InvoicedCompanySubdomain = ""   // FIXME: Add company subdomain like "acmeinc"; append ".sandbox" if test account
-	IsInvoicedSandbox        = true // FIXME: Change to false if account is not sandbox
 
 	TokenTTL = time.Hour * 24 * 90 // FIXME: Update token TTL as desired; default is 90 days
 
-	ResultFileName = "output" // FIXME: Edit file name (not including .xlsx suffix) for exported file as desired
 )
 
 type invoicedCustomer struct {
@@ -105,8 +104,67 @@ func (ic *InvoicedClient) getAllCustomers() ([]invoicedCustomer, error) {
 }
 
 func main() {
+
+	sandBoxEnv := true
+	key := flag.String("key", "", "api key in Settings > Developer")
+	environment := flag.String("env", "", "your environment production or sandbox")
+	companyUsername := flag.String("companyusername","","your company username in Settings > Customer Portal")
+	magiclinkkey := flag.String("magiclinkkey","","your magic link key in Settings > Developers")
+	fileLocation := flag.String("file", "", "specify your excel file")
+
+	flag.Parse()
+
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Println("This program will generate user registrations")
+
+	if *key == "" {
+		fmt.Print("Please enter your API Key: ")
+		*key, _ = reader.ReadString('\n')
+		*key = strings.TrimSpace(*key)
+	}
+
+	*environment = strings.ToUpper(strings.TrimSpace(*environment))
+
+	if *environment == "" {
+		fmt.Println("Enter P for Production, S for Sandbox: ")
+		*environment, _ = reader.ReadString('\n')
+		*environment = strings.TrimSpace(*environment)
+	}
+
+	if *environment == "P" {
+		sandBoxEnv = false
+		fmt.Println("Using Production for the environment")
+	} else if *environment == "S" {
+		fmt.Println("Using Sandbox for the environment")
+	} else {
+		fmt.Println("Unrecognized value ", *environment, ", enter P or S only")
+		return
+	}
+
+	if *companyUsername == "" {
+		fmt.Println("Please specify your company's username which can be found in Settings > Customer Portal: ")
+		*companyUsername, _ = reader.ReadString('\n')
+		*companyUsername = strings.TrimSpace(*companyUsername)
+	}
+
+	if *magiclinkkey == "" {
+		fmt.Println("Please specify your magic link key can be found in Settings > Developers: ")
+		*magiclinkkey, _ = reader.ReadString('\n')
+		*magiclinkkey = strings.TrimSpace(*magiclinkkey)
+	}
+
+	if *fileLocation == "" {
+		fmt.Println("Please specify your excel file: ")
+		*fileLocation, _ = reader.ReadString('\n')
+		*fileLocation = strings.TrimSpace(*fileLocation)
+	}
+
+	*fileLocation = strings.TrimSpace(*fileLocation)
+
+
 	// set up invoiced client
-	client := NewInvoicedClient(InvoicedApiKey, IsInvoicedSandbox)
+	client := NewInvoicedClient(*key, sandBoxEnv)
 
 	// create excel file and specify header rows
 	f := excelize.NewFile()
@@ -130,7 +188,7 @@ func main() {
 			"exp": time.Now().Add(TokenTTL).Unix(),
 		})
 
-		tokenString, err := token.SignedString([]byte(InvoicedMagicLinkKey))
+		tokenString, err := token.SignedString([]byte(*magiclinkkey ))
 		if err != nil {
 			fmt.Println(err.Error())
 		}
@@ -138,13 +196,19 @@ func main() {
 		_ = f.SetCellValue("Sheet1", "A"+strconv.Itoa(rowNum), c.Name)
 		_ = f.SetCellValue("Sheet1", "B"+strconv.Itoa(rowNum), c.Number)
 		_ = f.SetCellValue("Sheet1", "C"+strconv.Itoa(rowNum), c.Email)
+
+		magiclinkURL := "https://"+*companyUsername+".invoiced.com/login/"+tokenString
+
+		if sandBoxEnv {
+			magiclinkURL = "https://"+*companyUsername+".sandbox.invoiced.com/login/"+tokenString
+		}
 		_ = f.SetCellValue("Sheet1", "D"+strconv.Itoa(rowNum),
-			"https://"+InvoicedCompanySubdomain+".invoiced.com/login/"+tokenString)
+			magiclinkURL)
 
 		rowNum += 1
 	}
 
-	if err = f.SaveAs(ResultFileName+".xlsx"); err != nil {
+	if err = f.SaveAs(*fileLocation); err != nil {
 		panic(err)
 	}
 }

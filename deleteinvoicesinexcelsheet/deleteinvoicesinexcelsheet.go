@@ -55,7 +55,7 @@ func main() {
 		*fileLocation = strings.TrimSpace(*fileLocation)
 	}
 
-	fmt.Println("Please confirm, this program is about to delete all of the credit notes specified in the excel sheet, please type in YES to continue: ")
+	fmt.Println("Please confirm, this program is about to delete all of the invoices specified in the excel sheet, please type in YES to continue: ")
 	confirm, _ := reader.ReadString('\n')
 	confirm = strings.TrimSpace(confirm)
 

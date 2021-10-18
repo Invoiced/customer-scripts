@@ -59,25 +59,31 @@ func main() {
 	fmt.Println("Number of customers to remove countries from the contact section", len(customers))
 
 	for _, customer := range customers {
-		contacts, err := customer.ListAllContacts()
-		if err != nil {
-			fmt.Println("Error getting contact for customer -> ", customer.Name)
-		}
 
-		for _, contact := range contacts {
-			contactToUpdate := new(invdendpoint.Contact)
-			contactToUpdate.Id = contact.Id
-			contactToUpdate.Country = ""
-			fmt.Println("Removing country from contact with email ", contact.Email)
-			_, err := customer.UpdateContact(contactToUpdate)
-
-			if err != nil {
-				fmt.Println("Error updating contact with email ", contact.Email, "got error -> ", err)
-			} else {
-				fmt.Println("Successfully removed country from contact with email ", contact.Email)
-			}
-
-		}
+		contactToCreate := new(invdendpoint.Contact)
+		contactToCreate.Country = "GB"
+		contactToCreate.Name = "Parag Tester 3"
+		contactToCreate.Email = "parag@example.com"
+		customer.CreateContact(contactToCreate)
+		//contacts, err := customer.ListAllContacts()
+		//if err != nil {
+		//	fmt.Println("Error getting contact for customer -> ", customer.Name)
+		//}
+		//
+		//for _, contact := range contacts {
+		//	contactToUpdate := new(invdendpoint.Contact)
+		//	contactToUpdate.Id = contact.Id
+		//	contactToUpdate.Country = ""
+		//	fmt.Println("Removing country from contact with email ", contact.Email)
+		//	_, err := customer.UpdateContact(contactToUpdate)
+		//
+		//	if err != nil {
+		//		fmt.Println("Error updating contact with email ", contact.Email, "got error -> ", err)
+		//	} else {
+		//		fmt.Println("Successfully removed country from contact with email ", contact.Email)
+		//	}
+		//
+		//}
 	}
 
 }

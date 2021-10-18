@@ -108,7 +108,7 @@ func main() {
 	}
 
 	for i, userdata := range users {
-		err = f.SetCellValue("Sheet1", "A" + strconv.Itoa(i + 2), userdata.User.FirstName + userdata.User.LastName)
+		err = f.SetCellValue("Sheet1", "A" + strconv.Itoa(i + 2), userdata.User.FirstName + " " +userdata.User.LastName)
 		if err != nil {
 			fmt.Println(err)
 		}

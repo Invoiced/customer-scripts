@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/invoiced/invoiced-go"
+	"github.com/Invoiced/invoiced-go"
 	"os"
 	"strings"
 )

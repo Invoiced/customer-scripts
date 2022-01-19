@@ -10,7 +10,7 @@ import (
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/Invoiced/invoiced-go/invdendpoint"
-	invdapi "github.com/invoiced/invoiced-go"
+	invdapi "github.com/Invoiced/invoiced-go"
 )
 
 //This program will create credit memos on Invoiced; one per row

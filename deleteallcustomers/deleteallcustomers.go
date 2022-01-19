@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/invoiced/invoiced-go"
+	"github.com/Invoiced/invoiced-go"
 	"os"
 	"strings"
 )

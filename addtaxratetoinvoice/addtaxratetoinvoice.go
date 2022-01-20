@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/Invoiced/invoiced-go/invdendpoint"
-	"github.com/Invoiced/invoiced-go"
+	"github.com/Invoiced/invoiced-go/v2"
+	"github.com/Invoiced/invoiced-go/v2/api"
+	"github.com/xuri/excelize/v2"
 	"os"
 	"strings"
 )
@@ -55,7 +55,7 @@ func main() {
 		*fileLocation = strings.TrimSpace(*fileLocation)
 	}
 
-	conn := invdapi.NewConnection(*key, sandBoxEnv)
+	client := api.New(*key, sandBoxEnv)
 
 	f, err := excelize.OpenFile(*fileLocation)
 
@@ -75,22 +75,22 @@ func main() {
 	}
 
 	if len(rows) == 0 {
-		fmt.Println("No customer statements to send")
+		fmt.Println("No tax rate data")
 	}
 
 	rows = rows[1:len(rows)]
 
-	taxRates, err := conn.NewTaxRate().ListAll(nil,nil)
+	taxRates, err := client.TaxRate.ListAll(nil, nil)
 
 	if err != nil {
-		fmt.Println("Could not fetch tax rates, err=>",err)
+		fmt.Println("Could not fetch tax rates, err=>", err)
 		return
 	}
 
-	taxRateMap := make(map[string]*invdendpoint.TaxRate)
+	taxRateMap := make(map[string]*invoiced.TaxRate)
 
 	for _, taxRate := range taxRates {
-		taxRateMap[taxRate.Id] = taxRate.TaxRate
+		taxRateMap[taxRate.Id] = taxRate
 	}
 
 	for i, row := range rows {
@@ -98,7 +98,7 @@ func main() {
 		invoiceNumber := strings.TrimSpace(row[invoiceNumberIndex])
 		taxCode := strings.TrimSpace(row[taxCodeIndex])
 
-		invoice, err := conn.NewInvoice().ListInvoiceByNumber(invoiceNumber)
+		invoice, err := client.Invoice.ListInvoiceByNumber(invoiceNumber)
 
 		if err != nil {
 			fmt.Println("Error getting invoice with number => ", invoiceNumber, ", error => ", err)
@@ -108,31 +108,28 @@ func main() {
 			continue
 		}
 
-		fmt.Println("Updating invoice for with number => ", invoiceNumber, "with tax code => ",taxCode)
+		fmt.Println("Updating invoice for with number => ", invoiceNumber, "with tax code => ", taxCode)
 
-		taxToAdd := new(invdendpoint.Tax)
+		taxToAdd := new(invoiced.TaxRequest)
 
 		taxRateToAdd, ok := taxRateMap[taxCode]
 
 		if !ok {
-			fmt.Println("Tax rate ",taxCode,",not found")
+			fmt.Println("Tax rate ", taxCode, ",not found")
 			continue
 		}
 
-		taxToAdd.TaxRate = *taxRateToAdd
+		taxToAdd.TaxRate = taxRateToAdd
 
-		invToUpdate := conn.NewInvoice()
-
-		invToUpdate.Id = invoice.Id
-		invToUpdate.Taxes = append(invToUpdate.Taxes,*taxToAdd)
-		invToUpdate.Closed = invoice.Closed
+		invToUpdateToRequest := new(invoiced.InvoiceRequest)
+		invToUpdateToRequest.Taxes = append(invToUpdateToRequest.Taxes, taxToAdd)
+		invToUpdateToRequest.Closed = invoiced.Bool(invoice.Closed)
 
 		if invoice.Closed {
-			invToUpdate.Closed = false
+			invToUpdateToRequest.Closed = invoiced.Bool(false)
 		}
 
-
-		err = invToUpdate.Save()
+		_, err = client.Invoice.Update(invoice.Id, invToUpdateToRequest)
 
 		if err != nil {
 			fmt.Println("Error adding tax to invoice with number => ", invoiceNumber, ", error => ", err)
@@ -141,13 +138,6 @@ func main() {
 
 		fmt.Println("Successfully added tax")
 
-		if i == 0 {
-			panic("Break now")
-		}
-
-
 	}
-
-
 
 }

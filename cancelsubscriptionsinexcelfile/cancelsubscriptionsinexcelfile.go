@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/Invoiced/invoiced-go"
+	"github.com/xuri/excelize/v2"
+	"github.com/Invoiced/invoiced-go/v2/api"
 	"os"
 	"strconv"
 	"strings"
@@ -55,7 +55,7 @@ func main() {
 		*fileLocation = strings.TrimSpace(*fileLocation)
 	}
 
-	conn := invdapi.NewConnection(*key, sandBoxEnv)
+	client := api.New(*key, sandBoxEnv)
 
 	f, err := excelize.OpenFile(*fileLocation)
 
@@ -83,6 +83,8 @@ func main() {
 
 		subscriptionIdStr := row[subscriptionIdIndex]
 
+		fmt.Println(subscriptionIdStr)
+
 		subscriptionId, err := strconv.ParseInt(subscriptionIdStr, 10, 64)
 
 		if err != nil {
@@ -90,16 +92,14 @@ func main() {
 			continue
 		}
 
-		subscriptionToCancel := conn.NewSubscription()
-		subscriptionToCancel.Id = subscriptionId
-		err = subscriptionToCancel.Cancel()
+		err = client.Subscription.Cancel(subscriptionId)
 
 		if err != nil && !strings.Contains(err.Error(),"subscription has already been canceled"){
-			fmt.Println("Could not cancel subscription with id = ",subscriptionId, ",got following error => ",err)
+			fmt.Println("Could not cancel subscription with id =",subscriptionId, ",got following error => ",err)
 			continue
 		}
 
-		fmt.Println("Canceled subscription with id = ", subscriptionId, ",successfully")
+		fmt.Println("Canceled subscription with id =", subscriptionId, ",successfully")
 
 	}
 

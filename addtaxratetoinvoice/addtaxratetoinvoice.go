@@ -93,7 +93,7 @@ func main() {
 		taxRateMap[taxRate.Id] = taxRate
 	}
 
-	for i, row := range rows {
+	for _, row := range rows {
 
 		invoiceNumber := strings.TrimSpace(row[invoiceNumberIndex])
 		taxCode := strings.TrimSpace(row[taxCodeIndex])

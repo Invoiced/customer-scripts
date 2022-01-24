@@ -19,3 +19,5 @@
 *_internal.go
 *.zip
 *.exe
+
+!example.xlsx

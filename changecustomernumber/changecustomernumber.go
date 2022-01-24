@@ -4,8 +4,9 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/Invoiced/invoiced-go"
+	"github.com/Invoiced/invoiced-go/v2"
+	"github.com/Invoiced/invoiced-go/v2/api"
+	"github.com/xuri/excelize/v2"
 	"os"
 	"strings"
 )
@@ -54,7 +55,7 @@ func main() {
 		*fileLocation = strings.TrimSpace(*fileLocation)
 	}
 
-	conn := invdapi.NewConnection(*key, sandBoxEnv)
+	client := api.New(*key, sandBoxEnv)
 
 	f, err := excelize.OpenFile(*fileLocation)
 
@@ -96,7 +97,7 @@ func main() {
 			continue
 		}
 
-		customerOriginal, err := conn.NewCustomer().ListCustomerByNumber(customerNumberOriginal)
+		customerOriginal, err := client.Customer.ListCustomerByNumber(customerNumberOriginal)
 
 		if err != nil {
 			fmt.Println("Error getting customer with number => ", customerNumberOriginal, ", error => ", err)
@@ -108,11 +109,10 @@ func main() {
 
 		fmt.Println("Updating customer number with number => ", customerNumberOriginal)
 
-		customerNew := customerOriginal.NewCustomer()
-		customerNew.Id = customerOriginal.Id
-		customerNew.Number = customerNumberNew
+		customerNewRequest := new(invoiced.CustomerRequest)
+		customerNewRequest.Number = invoiced.String(customerOriginal.Number)
 
-		err = customerNew.Save()
+		_,err = client.Customer.Update(customerOriginal.Id,customerNewRequest)
 
 		if err != nil {
 			fmt.Println("Error updating customer number => ", customerNumberOriginal, ", error => ", err)

@@ -63,7 +63,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Read in excel file ", *fileLocation, ", successfully")
+	fmt.Println("Read in excel file", *fileLocation, ", successfully")
 
 	customerNumberOriginalIndex := 0
 	customerNumberNewIndex := 1
@@ -83,7 +83,7 @@ func main() {
 	for i, row := range rows {
 
 		if len(row) < 2 {
-			fmt.Println("Skipping updating customer, because we require both the old and new customer number for customer with number for row = ",i)
+			fmt.Println("Skipping updating customer, because we require both the old and new customer number for customer with number for row =",i)
 			continue
 		}
 
@@ -100,26 +100,26 @@ func main() {
 		customerOriginal, err := client.Customer.ListCustomerByNumber(customerNumberOriginal)
 
 		if err != nil {
-			fmt.Println("Error getting customer with number => ", customerNumberOriginal, ", error => ", err)
+			fmt.Println("Error getting customer with number =>", customerNumberOriginal, ", error =>", err)
 			continue
 		} else if customerOriginal == nil {
-			fmt.Println("Customer does not exist with number => ", customerOriginal, ", error => ", err)
+			fmt.Println("Customer does not exist with number =>", customerOriginal, ", error =>", err)
 			continue
 		}
 
-		fmt.Println("Updating customer number with number => ", customerNumberOriginal)
+		fmt.Println("Updating customer number with number =>", customerNumberOriginal)
 
 		customerNewRequest := new(invoiced.CustomerRequest)
-		customerNewRequest.Number = invoiced.String(customerOriginal.Number)
+		customerNewRequest.Number = invoiced.String(customerNumberNew)
 
 		_,err = client.Customer.Update(customerOriginal.Id,customerNewRequest)
 
 		if err != nil {
-			fmt.Println("Error updating customer number => ", customerNumberOriginal, ", error => ", err)
+			fmt.Println("Error updating customer number =>", customerNumberOriginal, ", error =>", err)
 			continue
 		}
 
-		fmt.Println("Successfully updated customer number => ", customerNumberOriginal, ", set new number to ", customerNumberNew)
+		fmt.Println("Successfully updated customer number =>", customerNumberOriginal, ", set new number to", customerNumberNew)
 
 	}
 

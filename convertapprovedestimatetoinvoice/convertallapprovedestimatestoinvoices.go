@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/Invoiced/invoiced-go/invdendpoint"
-	"github.com/Invoiced/invoiced-go"
+	"github.com/Invoiced/invoiced-go/v2"
+	"github.com/Invoiced/invoiced-go/v2/api"
 	"os"
 	"strings"
 )
@@ -13,7 +13,7 @@ import (
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Please enter your API Key: ")
-	sandboxEnv := true
+	sandBoxEnv := true
 	key, _ := reader.ReadString('\n')
 	key = strings.TrimSpace(key)
 	for {
@@ -23,7 +23,7 @@ func main() {
 		env = strings.ToUpper(strings.TrimSpace(env))
 
 		if env == "P" || strings.Contains(env, "PRODUCTION") {
-			sandboxEnv = false
+			sandBoxEnv = false
 			fmt.Println("Using Production for the environment")
 			break
 		} else if env == "S" || strings.Contains(env, "SANDBOX") {
@@ -32,16 +32,14 @@ func main() {
 		}
 	}
 
-	fmt.Println("Is this a Production connection? => ", !sandboxEnv)
-
 	fmt.Println("This program will generate an invoice for all approved estimates")
 
-	conn := invdapi.NewConnection(key, sandboxEnv)
+	client := api.New(key, sandBoxEnv)
 
-	filter := invdendpoint.NewFilter()
+	filter := invoiced.NewFilter()
 	filter.Set("status", "approved")
 
-	estimates, err := conn.NewEstimate().ListAll(filter, nil)
+	estimates, err := client.Estimate.ListAll(filter,nil)
 
 	if err != nil {
 		fmt.Println("Error getting estimates error => ", err)
@@ -58,7 +56,8 @@ func main() {
 	for _, estimate := range estimates {
 
 		fmt.Println("Generating invoice for estimate #" + estimate.Number)
-		inv, err := estimate.GenerateInvoice()
+
+		inv, err := client.Estimate.GenerateInvoice(estimate.Id)
 		if err != nil {
 			fmt.Println("Error generating invoice for estimate #" + estimate.Number + ", got error => " + err.Error())
 			continue

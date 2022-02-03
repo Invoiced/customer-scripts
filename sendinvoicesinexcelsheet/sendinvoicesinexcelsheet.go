@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/Invoiced/invoiced-go"
+	"github.com/xuri/excelize/v2"
+	"github.com/Invoiced/invoiced-go/v2/api"
 	"os"
 	"strings"
 )
@@ -77,24 +77,20 @@ func main() {
 		panic("Error trying to get rows for the sheet" + err.Error())
 	}
 
-	fmt.Println("Please confirm, this program is about to send out the all of those invoices specified in the excel file, through email, please type in YES to continue: ")
-	confirm, _ := reader.ReadString('\n')
-	confirm = strings.TrimSpace(confirm)
 
-	if confirm != "YES" {
-		fmt.Println("Halting program, sequence not confirmed")
-		return
-	}
+	conn := api.New(*key, prodEnv)
 
-	conn := invdapi.NewConnection(*key, prodEnv)
+	for i, row := range rows {
 
-	for _, row := range rows {
+		if i == 0 {
+			continue
+		}
 
 		invoiceNumber := strings.TrimSpace(row[columnIndex])
 
 		fmt.Println("Getting invoice with number => ", invoiceNumber)
 
-		inv, err := conn.NewInvoice().ListInvoiceByNumber(invoiceNumber)
+		inv, err := conn.Invoice.ListInvoiceByNumber(invoiceNumber)
 
 		if err != nil {
 			fmt.Println("Error getting invoice with number => ", invoiceNumber, ", error => ", err)
@@ -113,7 +109,7 @@ func main() {
 
 		fmt.Println("Sending invoice with number => ", invoiceNumber)
 
-		_, err = inv.SendEmail(nil)
+		err = conn.Invoice.SendEmail(inv.Id,nil)
 
 		if err != nil {
 			fmt.Println("Could not send out the invoice due the following error => ", err)

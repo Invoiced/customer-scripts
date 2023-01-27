@@ -1,16 +1,18 @@
+
+
 package main
 
 import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/xuri/excelize/v2"
 	"github.com/Invoiced/invoiced-go/v2/api"
+	"github.com/xuri/excelize/v2"
 	"os"
 	"strings"
 )
 
-//This program will send all invoices in the excel sheet
+//This program will send all invoices in the Excel sheet
 
 func main() {
 	//declare and init command line flags
@@ -102,8 +104,8 @@ func main() {
 			continue
 		}
 
-		if inv.Status == "draft" || inv.Status == "pending" || inv.Status == "paid" || inv.Status == "voided" {
-			fmt.Println("Invoice is already in draft, pending, paid, voided, skipping and moving on to next invoice ...")
+		if inv.Status == "draft" || inv.Status == "pending"  || inv.Status == "voided" {
+			fmt.Println("Invoice is already in draft, pending, voided, skipping and moving on to next invoice ...")
 			continue
 		}
 

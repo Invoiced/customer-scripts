@@ -19,5 +19,6 @@
 *_internal.go
 *.zip
 *.exe
-
+.DS_Store
+.idea/
 !example.xlsx

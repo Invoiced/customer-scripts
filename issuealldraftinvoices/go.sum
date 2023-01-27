@@ -1,5 +1,5 @@
-github.com/Invoiced/invoiced-go/v2 v2.0.2 h1:1EOvwBWoe70Gt27X22f8yp/X/4Yu5HpbFvl7VkEunBM=
-github.com/Invoiced/invoiced-go/v2 v2.0.2/go.mod h1:RJ+BPOaqhjVygrBYWvHpoQ+07ZFpz6rdgQyEV40WFhU=
+github.com/Invoiced/invoiced-go/v2 v2.1.1 h1:/WaO3KnxIjUsduA44JZAXk3Q/e+hDXApSxj6SHzVhrc=
+github.com/Invoiced/invoiced-go/v2 v2.1.1/go.mod h1:RJ+BPOaqhjVygrBYWvHpoQ+07ZFpz6rdgQyEV40WFhU=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 h1:RWengNIwukTxcDr9M+97sNutRR1RKhG96O6jWumTTnw=

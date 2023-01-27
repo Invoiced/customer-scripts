@@ -3,7 +3,7 @@ module github.com/Invoiced/customer-scripts/issuealldraftinvoices
 go 1.17
 
 require (
-	github.com/Invoiced/invoiced-go/v2 v2.0.2
+	github.com/Invoiced/invoiced-go/v2 v2.1.1
 	github.com/xuri/excelize/v2 v2.5.0
 )
 

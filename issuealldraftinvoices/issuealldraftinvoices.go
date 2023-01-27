@@ -88,8 +88,9 @@ func main() {
 	}
 
 	if  *export && len(issuedList) > 0 {
-		now := time.Now().String()
-		fileName := "issued-"+ now + ".xlsx"
+		now := time.Now().Format(time.RFC822)
+		nowParsed := strings.Replace(now, " ","-",-1)
+		fileName := "issued"+ "-"+nowParsed + ".xlsx"
 		f := excelize.NewFile()
 		// Create a new sheet.
 		index := f.NewSheet("Sheet1")

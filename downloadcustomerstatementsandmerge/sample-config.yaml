@@ -4,4 +4,5 @@ sandbox: true
 api_key: "API_KEY_HERE"
 statement_type: "balance_forward"
 currency: "USD"
+skip_zero_balance: true
 #rename file to config.yaml

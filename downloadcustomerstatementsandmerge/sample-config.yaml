@@ -1,5 +1,6 @@
 start_date: "2024-01-01 08:30 AM EST"
 end_date: "2024-01-11 05:00 PM EST"
 sandbox: true
-api_key: "API_KEY_HERE
+api_key: "API_KEY_HERE"
 statement_type: "balance_forward"
+#rename file to config.yaml

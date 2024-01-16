@@ -3,4 +3,5 @@ end_date: "2024-01-11 05:00 PM EST"
 sandbox: true
 api_key: "API_KEY_HERE"
 statement_type: "balance_forward"
+currency: "USD"
 #rename file to config.yaml

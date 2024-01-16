@@ -21,6 +21,7 @@ type Config struct {
 	Sandbox       bool   `yaml:"sandbox"`
 	APIKey        string `yaml:"api_key"`
 	StatementType string `yaml:"statement_type"`
+	Currency      string `yaml:"currency"`
 }
 
 func main() {
@@ -31,6 +32,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error reading config file: %v", err)
 	}
+
+	fmt.Println(configFile)
 
 	// Unmarshal the YAML into our Config struct
 	var config Config
@@ -81,7 +84,7 @@ func main() {
 
 		pdfStatement := customer.StatementPdfUrl
 
-		pdfPath, err := fetchPDF(pdfStatement, config.StatementType, strconv.FormatInt(customer.Id, 10), startDate, endDate)
+		pdfPath, err := fetchPDF(pdfStatement, config.StatementType, strconv.FormatInt(customer.Id, 10), config.Currency, startDate, endDate)
 
 		if err != nil {
 			panic(err)
@@ -103,11 +106,14 @@ func main() {
 
 }
 
-func fetchPDF(url, customerId, statementType string, startDate, endDate time.Time) (string, error) {
+func fetchPDF(url, statementType, customerId, currency string, startDate, endDate time.Time) (string, error) {
+
+	fmt.Println(statementType)
 	if statementType == "balance_forward" {
-		url += fmt.Sprintf("?statement_type=%s&&start=%d&end=%d", statementType, startDate.Unix(), endDate.Unix())
+		url += fmt.Sprintf("?statement_type=%s&&start=%d&end=%d&currency=%s", statementType, startDate.Unix(), endDate.Unix(), currency)
+		fmt.Println(url)
 	} else if statementType == "open_item" {
-		url += fmt.Sprintf("?statement_type=%s&end=%d", statementType, endDate.Unix())
+		url += fmt.Sprintf("?statement_type=%s&end=%d&currency=%s&items=open", statementType, endDate.Unix(), currency)
 	}
 
 	fmt.Println("Fetching PDF from", url, "for customer", customerId)
@@ -118,7 +124,7 @@ func fetchPDF(url, customerId, statementType string, startDate, endDate time.Tim
 	}
 	defer resp.Body.Close()
 
-	filePath := fmt.Sprintf("statement_%s_%s_%s.pdf", customerId, startDate.Unix(), endDate.Unix())
+	filePath := fmt.Sprintf("statement_%s_%d_%d.pdf", customerId, startDate.Unix(), endDate.Unix())
 	file, err := os.Create(filePath)
 	if err != nil {
 		return "", err

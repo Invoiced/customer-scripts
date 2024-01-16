@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/Invoiced/invoiced-go/v2/api"
 	"github.com/signintech/gopdf"
@@ -23,8 +24,10 @@ type Config struct {
 }
 
 func main() {
+	configFileName := flag.String("config", "config.yaml", "specify the config file to use")
+	flag.Parse()
 	// Read the configuration file
-	configFile, err := os.ReadFile("config.yaml")
+	configFile, err := os.ReadFile(*configFileName)
 	if err != nil {
 		log.Fatalf("Error reading config file: %v", err)
 	}
@@ -78,7 +81,7 @@ func main() {
 
 		pdfStatement := customer.StatementPdfUrl
 
-		pdfPath, err := fetchPDF(pdfStatement, strconv.FormatInt(customer.Id, 10), startDate, endDate)
+		pdfPath, err := fetchPDF(pdfStatement, config.StatementType, strconv.FormatInt(customer.Id, 10), startDate, endDate)
 
 		if err != nil {
 			panic(err)

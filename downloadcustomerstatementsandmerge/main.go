@@ -26,6 +26,9 @@ type Config struct {
 }
 
 func main() {
+
+	timeBegin := time.Now()
+
 	configFileName := flag.String("config", "config.yaml", "specify the config file to use")
 	flag.Parse()
 	// Read the configuration file
@@ -69,6 +72,8 @@ func main() {
 
 	var pdfFiles []string
 
+	statementCounter := 0
+
 	for _, customer := range customers {
 
 		if config.SkipZeroBalance {
@@ -78,7 +83,7 @@ func main() {
 				continue
 			}
 
-			if balance.DueNow == 0 {
+			if balance.TotalOutstanding == 0 {
 				continue
 			}
 		}
@@ -92,6 +97,7 @@ func main() {
 		}
 
 		pdfFiles = append(pdfFiles, pdfPath)
+		statementCounter++
 	}
 
 	statementName := fmt.Sprintf("customer_statements_%d_%d.pdf", startDate.Unix(), endDate.Unix())
@@ -102,6 +108,15 @@ func main() {
 	} else {
 		fmt.Println("Stitched PDFs successfully")
 		deleteFiles(pdfFiles)
+	}
+
+	timeEnd := time.Now()
+	timeTake := timeEnd.Sub(timeBegin)
+
+	if timeTake.Minutes() < 1 {
+		fmt.Println("Merged", statementCounter, "customer statements in", timeEnd.Sub(timeBegin).Seconds(), "seconds")
+	} else {
+		fmt.Println("Merged", statementCounter, "customer statements in", timeEnd.Sub(timeBegin).Minutes(), "minutes")
 	}
 
 }

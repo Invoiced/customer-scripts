@@ -158,6 +158,6 @@ func deleteFiles(filePaths []string) {
 }
 
 func parseDateTime(dateTimeStr string) (time.Time, error) {
-	layout := "2006-01-02 03:04 PM MST"
+	layout := "2006-01-02 03:04:05 PM MST"
 	return time.Parse(layout, dateTimeStr)
 }

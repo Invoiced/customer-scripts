@@ -41,6 +41,11 @@ func main() {
 		log.Fatalf("Error parsing config file: %v", err)
 	}
 
+	fmt.Println("Start Date: ", config.StartDate)
+	fmt.Println("End Date: ", config.EndDate)
+	fmt.Println("Statement Currency: ", config.Currency)
+	fmt.Println("Statement Type: ", config.StatementType)
+
 	// Parse the start date
 	startDate, err := parseDateTime(config.StartDate)
 	if err != nil {
